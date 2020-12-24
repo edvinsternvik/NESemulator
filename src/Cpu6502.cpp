@@ -5,22 +5,22 @@
 Cpu6502::Cpu6502() {
     using c = Cpu6502;
     m_operations = {
-        {"BRK", &c::BRK, &c::IMP, 7}, {"ORA", &c::ORA, &c::IDX, 6}, {"XXX", &c::XXX, &c::IMP, 2}, {"XXX", &c::XXX, &c::IMP, 2}, {"TSB", &c::TSB, &c::ZPA, 5}, {"ORA", &c::ORA, &c::ZPA, 3}, {"ASL", &c::ASL, &c::ZPA, 5}, {"RMB", &c::RMB, &c::ZPA, 5}, {"PHP", &c::PHP, &c::IMP, 3}, {"ORA", &c::ORA, &c::IMM, 2}, {"ASL", &c::ASL, &c::ACC, 2}, {"XXX", &c::XXX, &c::IMP, 2}, {"TSB", &c::TSB, &c::ABS, 6}, {"ORA", &c::ORA, &c::ABS, 4}, {"ASL", &c::ASL, &c::ABS, 6}, {"BBR", &c::BBR, &c::ZPA, 5},
-        {"BPL", &c::BPL, &c::REL, 2}, {"ORA", &c::ORA, &c::INY, 5}, {"ORA", &c::ORA, &c::IND, 5}, {"XXX", &c::XXX, &c::IMP, 2}, {"TRB", &c::TRB, &c::ZPA, 5}, {"ORA", &c::ORA, &c::ZPX, 4}, {"ASL", &c::ASL, &c::ZPX, 6}, {"RMB", &c::RMB, &c::ZPA, 5}, {"CLC", &c::CLC, &c::IMP, 2}, {"ORA", &c::ORA, &c::ABY, 4}, {"INC", &c::INC, &c::ACC, 2}, {"XXX", &c::XXX, &c::IMP, 2}, {"TRB", &c::TRB, &c::ABS, 6}, {"ORA", &c::ORA, &c::ABX, 4}, {"ASL", &c::ASL, &c::ABX, 7}, {"BBR", &c::BBR, &c::ZPA, 5},
-        {"JSR", &c::JSR, &c::ABS, 6}, {"AND", &c::AND, &c::IDX, 6}, {"XXX", &c::XXX, &c::IMP, 2}, {"XXX", &c::XXX, &c::IMP, 2}, {"BIT", &c::BIT, &c::ZPA, 3}, {"AND", &c::AND, &c::ZPA, 3}, {"ROL", &c::ROL, &c::ZPA, 5}, {"RMB", &c::RMB, &c::ZPA, 5}, {"PLP", &c::PLP, &c::IMP, 4}, {"AND", &c::AND, &c::IMM, 2}, {"ROL", &c::ROL, &c::ACC, 2}, {"XXX", &c::XXX, &c::IMP, 2}, {"BIT", &c::BIT, &c::ABS, 4}, {"AND", &c::AND, &c::ABS, 4}, {"ROL", &c::ROL, &c::ABS, 6}, {"BBR", &c::BBR, &c::ZPA, 5},
-        {"BMI", &c::BMI, &c::REL, 2}, {"AND", &c::AND, &c::INY, 5}, {"AND", &c::AND, &c::IND, 5}, {"XXX", &c::XXX, &c::IMP, 2}, {"BIT", &c::BIT, &c::ZPX, 4}, {"AND", &c::AND, &c::ZPX, 4}, {"ROL", &c::ROL, &c::ZPX, 6}, {"RMB", &c::RMB, &c::ZPA, 5}, {"SEC", &c::SEC, &c::IMP, 2}, {"AND", &c::AND, &c::ABY, 4}, {"DEC", &c::DEC, &c::ACC, 2}, {"XXX", &c::XXX, &c::IMP, 2}, {"BIT", &c::BIT, &c::ABX, 4}, {"AND", &c::AND, &c::ABX, 4}, {"ROL", &c::ROL, &c::ABX, 7}, {"BBR", &c::BBR, &c::ZPA, 5},
-        {"RTI", &c::RTI, &c::IMP, 6}, {"EOR", &c::EOR, &c::IDX, 6}, {"XXX", &c::XXX, &c::IMP, 2}, {"XXX", &c::XXX, &c::IMP, 2}, {"XXX", &c::XXX, &c::IMP, 2}, {"EOR", &c::EOR, &c::ZPA, 3}, {"LSR", &c::LSR, &c::ZPA, 5}, {"RMB", &c::RMB, &c::ZPA, 5}, {"PHA", &c::PHA, &c::IMP, 3}, {"EOR", &c::EOR, &c::IMM, 2}, {"LSR", &c::LSR, &c::ACC, 2}, {"XXX", &c::XXX, &c::IMP, 2}, {"JMP", &c::JMP, &c::ABS, 3}, {"EOR", &c::EOR, &c::ABS, 4}, {"LSR", &c::LSR, &c::ABS, 6}, {"BBR", &c::BBR, &c::ZPA, 5},
-        {"BVC", &c::BVC, &c::REL, 2}, {"EOR", &c::EOR, &c::INY, 5}, {"EOR", &c::EOR, &c::IND, 5}, {"XXX", &c::XXX, &c::IMP, 2}, {"XXX", &c::XXX, &c::IMP, 2}, {"EOR", &c::EOR, &c::ZPX, 4}, {"LSR", &c::LSR, &c::ZPX, 6}, {"RMB", &c::RMB, &c::ZPA, 5}, {"CLI", &c::CLI, &c::IMP, 2}, {"EOR", &c::EOR, &c::ABY, 4}, {"PHY", &c::PHY, &c::IMP, 3}, {"XXX", &c::XXX, &c::IMP, 2}, {"XXX", &c::XXX, &c::IMP, 2}, {"EOR", &c::EOR, &c::ABX, 4}, {"LSR", &c::LSR, &c::ABX, 7}, {"BBR", &c::BBR, &c::ZPA, 5},
-        {"RTS", &c::RTS, &c::IMP, 6}, {"ADC", &c::ADC, &c::IDX, 6}, {"XXX", &c::XXX, &c::IMP, 2}, {"XXX", &c::XXX, &c::IMP, 2}, {"STZ", &c::STZ, &c::ZPA, 3}, {"ADC", &c::ADC, &c::ZPA, 3}, {"ROR", &c::ROR, &c::ZPA, 5}, {"RMB", &c::RMB, &c::ZPA, 5}, {"PLA", &c::PLA, &c::IMP, 4}, {"ADC", &c::ADC, &c::IMM, 2}, {"ROR", &c::ROR, &c::ACC, 2}, {"XXX", &c::XXX, &c::IMP, 2}, {"JMP", &c::JMP, &c::ABS, 6}, {"ADC", &c::ADC, &c::ABS, 4}, {"ROR", &c::ROR, &c::ABS, 6}, {"BBR", &c::BBR, &c::ZPA, 5}, 
-        {"BVS", &c::BVS, &c::REL, 2}, {"ADC", &c::ADC, &c::INY, 5}, {"ADC", &c::ADC, &c::IND, 5}, {"XXX", &c::XXX, &c::IMP, 2}, {"STZ", &c::STZ, &c::ZPX, 4}, {"ADC", &c::ADC, &c::ZPX, 4}, {"ROR", &c::ROR, &c::ZPX, 6}, {"RMB", &c::RMB, &c::ZPA, 5}, {"SEI", &c::SEI, &c::IMP, 2}, {"ADC", &c::ADC, &c::ABY, 4}, {"PLY", &c::PLY, &c::IMP, 4}, {"XXX", &c::XXX, &c::IMP, 2}, {"JMP", &c::JMP, &c::ABX, 6}, {"ADC", &c::ADC, &c::ABX, 4}, {"ROR", &c::ROR, &c::ABX, 7}, {"BBR", &c::BBR, &c::ZPA, 5},
-        {"BRA", &c::BRA, &c::REL, 3}, {"STA", &c::STA, &c::IDX, 6}, {"XXX", &c::XXX, &c::IMP, 2}, {"XXX", &c::XXX, &c::IMP, 2}, {"STY", &c::STY, &c::ZPA, 3}, {"STA", &c::STA, &c::ZPA, 3}, {"STX", &c::STX, &c::ZPA, 3}, {"SMB", &c::SMB, &c::ZPA, 5}, {"DEY", &c::DEY, &c::IMP, 2}, {"BIT", &c::BIT, &c::IMM, 2}, {"TXA", &c::TXA, &c::IMP, 2}, {"XXX", &c::XXX, &c::IMP, 2}, {"STY", &c::STY, &c::ABS, 4}, {"STA", &c::STA, &c::ABS, 4}, {"STX", &c::STX, &c::ABS, 4}, {"BBS", &c::BBS, &c::ZPA, 5},
-        {"BCC", &c::BCC, &c::REL, 2}, {"STA", &c::STA, &c::INY, 6}, {"STA", &c::STA, &c::IND, 5}, {"XXX", &c::XXX, &c::IMP, 2}, {"STY", &c::STY, &c::ZPX, 4}, {"STA", &c::STA, &c::ZPX, 4}, {"STX", &c::STX, &c::ZPY, 4}, {"SMB", &c::SMB, &c::ZPA, 5}, {"TYA", &c::TYA, &c::IMP, 2}, {"STA", &c::STA, &c::ABY, 5}, {"TXS", &c::TXS, &c::IMP, 2}, {"XXX", &c::XXX, &c::IMP, 2}, {"STZ", &c::STZ, &c::ABS, 4}, {"STA", &c::STA, &c::ABX, 5}, {"STZ", &c::STZ, &c::ABX, 5}, {"BBS", &c::BBS, &c::ZPA, 5},
-        {"LDY", &c::LDY, &c::IMM, 2}, {"LDA", &c::LDA, &c::IDX, 6}, {"LDX", &c::LDX, &c::IMM, 2}, {"XXX", &c::XXX, &c::IMP, 2}, {"LDY", &c::LDY, &c::ZPA, 3}, {"LDA", &c::LDA, &c::ZPA, 3}, {"LDX", &c::LDX, &c::ZPA, 3}, {"SMB", &c::SMB, &c::ZPA, 5}, {"TAY", &c::TAY, &c::IMP, 2}, {"LDA", &c::LDA, &c::IMM, 2}, {"TAX", &c::TAX, &c::IMP, 2}, {"XXX", &c::XXX, &c::IMP, 2}, {"LDY", &c::LDY, &c::ABS, 4}, {"LDA", &c::LDA, &c::ABS, 4}, {"LDX", &c::LDX, &c::ABS, 4}, {"BBS", &c::BBS, &c::ZPA, 5},
-        {"BCS", &c::BCS, &c::REL, 2}, {"LDA", &c::LDA, &c::INY, 5}, {"LDA", &c::LDA, &c::IND, 5}, {"XXX", &c::XXX, &c::IMP, 2}, {"LDY", &c::LDY, &c::ZPX, 4}, {"LDA", &c::LDA, &c::ZPX, 4}, {"LDX", &c::LDX, &c::ZPY, 4}, {"SMB", &c::SMB, &c::ZPA, 5}, {"CLV", &c::CLV, &c::IMP, 2}, {"LDA", &c::LDA, &c::ABY, 4}, {"TSX", &c::TSX, &c::IMP, 2}, {"XXX", &c::XXX, &c::IMP, 2}, {"LDY", &c::LDY, &c::ABX, 4}, {"LDA", &c::LDA, &c::ABX, 4}, {"LDX", &c::LDX, &c::ABY, 4}, {"BBS", &c::BBS, &c::ZPA, 5},
-        {"CPY", &c::CPY, &c::IMM, 2}, {"CMP", &c::CMP, &c::IDX, 6}, {"XXX", &c::XXX, &c::IMP, 2}, {"XXX", &c::XXX, &c::IMP, 2}, {"CPY", &c::CPY, &c::ZPA, 3}, {"CMP", &c::CMP, &c::ZPA, 3}, {"DEC", &c::DEC, &c::ZPA, 5}, {"SMB", &c::SMB, &c::ZPA, 5}, {"INY", &c::INY, &c::IMP, 2}, {"CMP", &c::CMP, &c::IMM, 2}, {"DEX", &c::DEX, &c::IMP, 2}, {"XXX", &c::XXX, &c::IMP, 2}, {"CPY", &c::CPY, &c::ABS, 4}, {"CMP", &c::CMP, &c::ABS, 4}, {"DEC", &c::DEC, &c::ABS, 6}, {"BBS", &c::BBS, &c::ZPA, 5},
-        {"BNE", &c::BNE, &c::REL, 2}, {"CMP", &c::CMP, &c::INY, 5}, {"CMP", &c::CMP, &c::IND, 5}, {"XXX", &c::XXX, &c::IMP, 2}, {"XXX", &c::XXX, &c::IMP, 2}, {"CMP", &c::CMP, &c::ZPX, 4}, {"DEC", &c::DEC, &c::ZPX, 6}, {"SMB", &c::SMB, &c::ZPA, 5}, {"CLD", &c::CLD, &c::IMP, 2}, {"CMP", &c::CMP, &c::ABY, 4}, {"PHX", &c::PHX, &c::IMP, 3}, {"XXX", &c::XXX, &c::IMP, 2}, {"XXX", &c::XXX, &c::IMP, 2}, {"CMP", &c::CMP, &c::ABX, 4}, {"DEC", &c::DEC, &c::ABX, 7}, {"BBS", &c::BBS, &c::ZPA, 5},
-        {"CPX", &c::CPX, &c::IMM, 2}, {"SBC", &c::SBC, &c::IDX, 6}, {"XXX", &c::XXX, &c::IMP, 2}, {"XXX", &c::XXX, &c::IMP, 2}, {"CPX", &c::CPX, &c::ZPA, 3}, {"SBC", &c::SBC, &c::ZPA, 3}, {"INC", &c::INC, &c::ZPA, 5}, {"SMB", &c::SMB, &c::ZPA, 5}, {"INX", &c::INX, &c::IMP, 2}, {"SBC", &c::SBC, &c::IMM, 2}, {"NOP", &c::NOP, &c::IMP, 2}, {"XXX", &c::XXX, &c::IMP, 2}, {"CPX", &c::CPX, &c::ABS, 4}, {"SBC", &c::SBC, &c::ABS, 4}, {"INC", &c::INC, &c::ABS, 6}, {"BBS", &c::BBS, &c::ZPA, 5},
-        {"BEQ", &c::BEQ, &c::REL, 2}, {"SBC", &c::SBC, &c::INY, 5}, {"SBC", &c::SBC, &c::IND, 5}, {"XXX", &c::XXX, &c::IMP, 2}, {"XXX", &c::XXX, &c::IMP, 2}, {"SBC", &c::SBC, &c::ZPX, 4}, {"INC", &c::INC, &c::ZPX, 6}, {"SMB", &c::SMB, &c::ZPA, 5}, {"SED", &c::SED, &c::IMP, 2}, {"SBC", &c::SBC, &c::ABY, 4}, {"PLX", &c::PLX, &c::IMP, 4}, {"XXX", &c::XXX, &c::IMP, 2}, {"XXX", &c::XXX, &c::IMP, 2}, {"SBC", &c::SBC, &c::ABX, 4}, {"INC", &c::INC, &c::ABX, 7}, {"BBS", &c::BBS, &c::ZPA, 5}   
+        {"BRK", &c::BRK, &c::IMP, 7}, {"ORA", &c::ORA, &c::IDX, 6}, {"XXX", &c::XXX, &c::IMP, 2}, {"XXX", &c::XXX, &c::IMP, 2}, {"XXX", &c::XXX, &c::IMP, 2}, {"ORA", &c::ORA, &c::ZPA, 3}, {"ASL", &c::ASL, &c::ZPA, 5}, {"XXX", &c::XXX, &c::IMP, 2}, {"PHP", &c::PHP, &c::IMP, 3}, {"ORA", &c::ORA, &c::IMM, 2}, {"ASL", &c::ASL, &c::ACC, 2}, {"XXX", &c::XXX, &c::IMP, 2}, {"XXX", &c::XXX, &c::IMP, 2}, {"ORA", &c::ORA, &c::ABS, 4}, {"ASL", &c::ASL, &c::ABS, 6}, {"XXX", &c::XXX, &c::IMP, 2},
+        {"BPL", &c::BPL, &c::REL, 2}, {"ORA", &c::ORA, &c::IDY, 5}, {"XXX", &c::XXX, &c::IMP, 2}, {"XXX", &c::XXX, &c::IMP, 2}, {"XXX", &c::XXX, &c::IMP, 2}, {"ORA", &c::ORA, &c::ZPX, 4}, {"ASL", &c::ASL, &c::ZPX, 6}, {"XXX", &c::XXX, &c::IMP, 2}, {"CLC", &c::CLC, &c::IMP, 2}, {"ORA", &c::ORA, &c::ABY, 4}, {"INC", &c::INC, &c::ACC, 2}, {"XXX", &c::XXX, &c::IMP, 2}, {"XXX", &c::XXX, &c::IMP, 2}, {"ORA", &c::ORA, &c::ABX, 4}, {"ASL", &c::ASL, &c::ABX, 7}, {"XXX", &c::XXX, &c::IMP, 2},
+        {"JSR", &c::JSR, &c::ABS, 6}, {"AND", &c::AND, &c::IDX, 6}, {"XXX", &c::XXX, &c::IMP, 2}, {"XXX", &c::XXX, &c::IMP, 2}, {"BIT", &c::BIT, &c::ZPA, 3}, {"AND", &c::AND, &c::ZPA, 3}, {"ROL", &c::ROL, &c::ZPA, 5}, {"XXX", &c::XXX, &c::IMP, 2}, {"PLP", &c::PLP, &c::IMP, 4}, {"AND", &c::AND, &c::IMM, 2}, {"ROL", &c::ROL, &c::ACC, 2}, {"XXX", &c::XXX, &c::IMP, 2}, {"BIT", &c::BIT, &c::ABS, 4}, {"AND", &c::AND, &c::ABS, 4}, {"ROL", &c::ROL, &c::ABS, 6}, {"XXX", &c::XXX, &c::IMP, 2},
+        {"BMI", &c::BMI, &c::REL, 2}, {"AND", &c::AND, &c::IDY, 5}, {"XXX", &c::XXX, &c::IMP, 2}, {"XXX", &c::XXX, &c::IMP, 2}, {"BIT", &c::BIT, &c::ZPX, 4}, {"AND", &c::AND, &c::ZPX, 4}, {"ROL", &c::ROL, &c::ZPX, 6}, {"XXX", &c::XXX, &c::IMP, 2}, {"SEC", &c::SEC, &c::IMP, 2}, {"AND", &c::AND, &c::ABY, 4}, {"DEC", &c::DEC, &c::ACC, 2}, {"XXX", &c::XXX, &c::IMP, 2}, {"BIT", &c::BIT, &c::ABX, 4}, {"AND", &c::AND, &c::ABX, 4}, {"ROL", &c::ROL, &c::ABX, 7}, {"XXX", &c::XXX, &c::IMP, 2},
+        {"RTI", &c::RTI, &c::IMP, 6}, {"EOR", &c::EOR, &c::IDX, 6}, {"XXX", &c::XXX, &c::IMP, 2}, {"XXX", &c::XXX, &c::IMP, 2}, {"XXX", &c::XXX, &c::IMP, 2}, {"EOR", &c::EOR, &c::ZPA, 3}, {"LSR", &c::LSR, &c::ZPA, 5}, {"XXX", &c::XXX, &c::IMP, 2}, {"PHA", &c::PHA, &c::IMP, 3}, {"EOR", &c::EOR, &c::IMM, 2}, {"LSR", &c::LSR, &c::ACC, 2}, {"XXX", &c::XXX, &c::IMP, 2}, {"JMP", &c::JMP, &c::ABS, 3}, {"EOR", &c::EOR, &c::ABS, 4}, {"LSR", &c::LSR, &c::ABS, 6}, {"XXX", &c::XXX, &c::IMP, 2},
+        {"BVC", &c::BVC, &c::REL, 2}, {"EOR", &c::EOR, &c::IDY, 5}, {"XXX", &c::XXX, &c::IMP, 2}, {"XXX", &c::XXX, &c::IMP, 2}, {"XXX", &c::XXX, &c::IMP, 2}, {"EOR", &c::EOR, &c::ZPX, 4}, {"LSR", &c::LSR, &c::ZPX, 6}, {"XXX", &c::XXX, &c::IMP, 2}, {"CLI", &c::CLI, &c::IMP, 2}, {"EOR", &c::EOR, &c::ABY, 4}, {"XXX", &c::XXX, &c::IMP, 2}, {"XXX", &c::XXX, &c::IMP, 2}, {"XXX", &c::XXX, &c::IMP, 2}, {"EOR", &c::EOR, &c::ABX, 4}, {"LSR", &c::LSR, &c::ABX, 7}, {"XXX", &c::XXX, &c::IMP, 2},
+        {"RTS", &c::RTS, &c::IMP, 6}, {"ADC", &c::ADC, &c::IDX, 6}, {"XXX", &c::XXX, &c::IMP, 2}, {"XXX", &c::XXX, &c::IMP, 2}, {"XXX", &c::XXX, &c::IMP, 2}, {"ADC", &c::ADC, &c::ZPA, 3}, {"ROR", &c::ROR, &c::ZPA, 5}, {"XXX", &c::XXX, &c::IMP, 2}, {"PLA", &c::PLA, &c::IMP, 4}, {"ADC", &c::ADC, &c::IMM, 2}, {"ROR", &c::ROR, &c::ACC, 2}, {"XXX", &c::XXX, &c::IMP, 2}, {"JMP", &c::JMP, &c::ABI, 6}, {"ADC", &c::ADC, &c::ABS, 4}, {"ROR", &c::ROR, &c::ABS, 6}, {"XXX", &c::XXX, &c::IMP, 2}, 
+        {"BVS", &c::BVS, &c::REL, 2}, {"ADC", &c::ADC, &c::IDY, 5}, {"XXX", &c::XXX, &c::IMP, 2}, {"XXX", &c::XXX, &c::IMP, 2}, {"XXX", &c::XXX, &c::IMP, 2}, {"ADC", &c::ADC, &c::ZPX, 4}, {"ROR", &c::ROR, &c::ZPX, 6}, {"XXX", &c::XXX, &c::IMP, 2}, {"SEI", &c::SEI, &c::IMP, 2}, {"ADC", &c::ADC, &c::ABY, 4}, {"XXX", &c::XXX, &c::IMP, 2}, {"XXX", &c::XXX, &c::IMP, 2}, {"XXX", &c::XXX, &c::IMP, 2}, {"ADC", &c::ADC, &c::ABX, 4}, {"ROR", &c::ROR, &c::ABX, 7}, {"XXX", &c::XXX, &c::IMP, 2},
+        {"XXX", &c::XXX, &c::IMP, 2}, {"STA", &c::STA, &c::IDX, 6}, {"XXX", &c::XXX, &c::IMP, 2}, {"XXX", &c::XXX, &c::IMP, 2}, {"STY", &c::STY, &c::ZPA, 3}, {"STA", &c::STA, &c::ZPA, 3}, {"STX", &c::STX, &c::ZPA, 3}, {"XXX", &c::XXX, &c::IMP, 2}, {"DEY", &c::DEY, &c::IMP, 2}, {"BIT", &c::BIT, &c::IMM, 2}, {"TXA", &c::TXA, &c::IMP, 2}, {"XXX", &c::XXX, &c::IMP, 2}, {"STY", &c::STY, &c::ABS, 4}, {"STA", &c::STA, &c::ABS, 4}, {"STX", &c::STX, &c::ABS, 4}, {"XXX", &c::XXX, &c::IMP, 2},
+        {"BCC", &c::BCC, &c::REL, 2}, {"STA", &c::STA, &c::IDY, 6}, {"XXX", &c::XXX, &c::IMP, 2}, {"XXX", &c::XXX, &c::IMP, 2}, {"STY", &c::STY, &c::ZPX, 4}, {"STA", &c::STA, &c::ZPX, 4}, {"STX", &c::STX, &c::ZPY, 4}, {"XXX", &c::XXX, &c::IMP, 2}, {"TYA", &c::TYA, &c::IMP, 2}, {"STA", &c::STA, &c::ABY, 5}, {"TXS", &c::TXS, &c::IMP, 2}, {"XXX", &c::XXX, &c::IMP, 2}, {"XXX", &c::XXX, &c::IMP, 2}, {"STA", &c::STA, &c::ABX, 5}, {"XXX", &c::XXX, &c::IMP, 2}, {"XXX", &c::XXX, &c::IMP, 2},
+        {"LDY", &c::LDY, &c::IMM, 2}, {"LDA", &c::LDA, &c::IDX, 6}, {"LDX", &c::LDX, &c::IMM, 2}, {"XXX", &c::XXX, &c::IMP, 2}, {"LDY", &c::LDY, &c::ZPA, 3}, {"LDA", &c::LDA, &c::ZPA, 3}, {"LDX", &c::LDX, &c::ZPA, 3}, {"XXX", &c::XXX, &c::IMP, 2}, {"TAY", &c::TAY, &c::IMP, 2}, {"LDA", &c::LDA, &c::IMM, 2}, {"TAX", &c::TAX, &c::IMP, 2}, {"XXX", &c::XXX, &c::IMP, 2}, {"LDY", &c::LDY, &c::ABS, 4}, {"LDA", &c::LDA, &c::ABS, 4}, {"LDX", &c::LDX, &c::ABS, 4}, {"XXX", &c::XXX, &c::IMP, 2},
+        {"BCS", &c::BCS, &c::REL, 2}, {"LDA", &c::LDA, &c::IDY, 5}, {"XXX", &c::XXX, &c::IMP, 2}, {"XXX", &c::XXX, &c::IMP, 2}, {"LDY", &c::LDY, &c::ZPX, 4}, {"LDA", &c::LDA, &c::ZPX, 4}, {"LDX", &c::LDX, &c::ZPY, 4}, {"XXX", &c::XXX, &c::IMP, 2}, {"CLV", &c::CLV, &c::IMP, 2}, {"LDA", &c::LDA, &c::ABY, 4}, {"TSX", &c::TSX, &c::IMP, 2}, {"XXX", &c::XXX, &c::IMP, 2}, {"LDY", &c::LDY, &c::ABX, 4}, {"LDA", &c::LDA, &c::ABX, 4}, {"LDX", &c::LDX, &c::ABY, 4}, {"XXX", &c::XXX, &c::IMP, 2},
+        {"CPY", &c::CPY, &c::IMM, 2}, {"CMP", &c::CMP, &c::IDX, 6}, {"XXX", &c::XXX, &c::IMP, 2}, {"XXX", &c::XXX, &c::IMP, 2}, {"CPY", &c::CPY, &c::ZPA, 3}, {"CMP", &c::CMP, &c::ZPA, 3}, {"DEC", &c::DEC, &c::ZPA, 5}, {"XXX", &c::XXX, &c::IMP, 2}, {"INY", &c::INY, &c::IMP, 2}, {"CMP", &c::CMP, &c::IMM, 2}, {"DEX", &c::DEX, &c::IMP, 2}, {"XXX", &c::XXX, &c::IMP, 2}, {"CPY", &c::CPY, &c::ABS, 4}, {"CMP", &c::CMP, &c::ABS, 4}, {"DEC", &c::DEC, &c::ABS, 6}, {"XXX", &c::XXX, &c::IMP, 2},
+        {"BNE", &c::BNE, &c::REL, 2}, {"CMP", &c::CMP, &c::IDY, 5}, {"XXX", &c::XXX, &c::IMP, 2}, {"XXX", &c::XXX, &c::IMP, 2}, {"XXX", &c::XXX, &c::IMP, 2}, {"CMP", &c::CMP, &c::ZPX, 4}, {"DEC", &c::DEC, &c::ZPX, 6}, {"XXX", &c::XXX, &c::IMP, 2}, {"CLD", &c::CLD, &c::IMP, 2}, {"CMP", &c::CMP, &c::ABY, 4}, {"XXX", &c::XXX, &c::IMP, 2}, {"XXX", &c::XXX, &c::IMP, 2}, {"XXX", &c::XXX, &c::IMP, 2}, {"CMP", &c::CMP, &c::ABX, 4}, {"DEC", &c::DEC, &c::ABX, 7}, {"XXX", &c::XXX, &c::IMP, 2},
+        {"CPX", &c::CPX, &c::IMM, 2}, {"SBC", &c::SBC, &c::IDX, 6}, {"XXX", &c::XXX, &c::IMP, 2}, {"XXX", &c::XXX, &c::IMP, 2}, {"CPX", &c::CPX, &c::ZPA, 3}, {"SBC", &c::SBC, &c::ZPA, 3}, {"INC", &c::INC, &c::ZPA, 5}, {"XXX", &c::XXX, &c::IMP, 2}, {"INX", &c::INX, &c::IMP, 2}, {"SBC", &c::SBC, &c::IMM, 2}, {"NOP", &c::NOP, &c::IMP, 2}, {"XXX", &c::XXX, &c::IMP, 2}, {"CPX", &c::CPX, &c::ABS, 4}, {"SBC", &c::SBC, &c::ABS, 4}, {"INC", &c::INC, &c::ABS, 6}, {"XXX", &c::XXX, &c::IMP, 2},
+        {"BEQ", &c::BEQ, &c::REL, 2}, {"SBC", &c::SBC, &c::IDY, 5}, {"XXX", &c::XXX, &c::IMP, 2}, {"XXX", &c::XXX, &c::IMP, 2}, {"XXX", &c::XXX, &c::IMP, 2}, {"SBC", &c::SBC, &c::ZPX, 4}, {"INC", &c::INC, &c::ZPX, 6}, {"XXX", &c::XXX, &c::IMP, 2}, {"SED", &c::SED, &c::IMP, 2}, {"SBC", &c::SBC, &c::ABY, 4}, {"XXX", &c::XXX, &c::IMP, 2}, {"XXX", &c::XXX, &c::IMP, 2}, {"XXX", &c::XXX, &c::IMP, 2}, {"SBC", &c::SBC, &c::ABX, 4}, {"INC", &c::INC, &c::ABX, 7}, {"XXX", &c::XXX, &c::IMP, 2}   
     };
 }
 
@@ -55,53 +55,142 @@ void Cpu6502::write(const uint8_t& data) {
 
 }
 
-uint8_t Cpu6502::IMM() {
-    m_operand = read(PC++);
+// ---------------------------------------------------------------------------------------
+// Addressing Modes:
+// ---------------------------------------------------------------------------------------
+
+// Accumulator Addressing: The instruction is just an operation on the accumulator, and so no operand is used.
+uint8_t Cpu6502::ACC() {
     return 0;
 }
 
+// Immediate Addressing: The second byte of the instruction specifies the operand directly.
+uint8_t Cpu6502::IMM() {
+    m_operandAddress = PC++;
+    return 0;
+}
+
+// Absolute Addressing: The second and third bytes specify the 8 lower and higher bits
+//      of the address.
+uint8_t Cpu6502::ABS() {
+    m_operandAddress = read(PC++); // Set low byte
+    m_operandAddress |= read(PC++) << 8; // Set high byte
+    return 0; 
+}
+
+// Zero Page Addressing: The second byte specifies an address in page zero.
+uint8_t Cpu6502::ZPA() {
+    m_operandAddress = read(PC++); // Set low byte, high byte is 0
+    return 0;
+}
+
+// Zero Page Indexed Addressing (X): Like zero page addressing, but the contents of the X registered is added
+//      to the address.
+uint8_t Cpu6502::ZPX() {
+    m_operandAddress = read(PC++) + X; // Set low byte, high byte is 0
+    m_operandAddress &= 0x00FF;
+    return 0;
+}
+
+// Zero Page Index Addressing (Y): Like zero page addressing, but the contents of the Y registered is added
+//      to the address.
+uint8_t Cpu6502::ZPY() {
+    m_operandAddress = read(PC++) + Y; // Set low byte, high byte is 0
+    m_operandAddress &= 0x00FF;
+    return 0;
+}
+
+// Absolute Indexed Addressing (X): Like Absolute Addressing but the address is offset by the
+//      contents of the X register.
+uint8_t Cpu6502::ABX() {
+    int8_t low = read(PC++); // Set low byte
+    int8_t high = read(PC++); // Set high byte
+    m_operandAddress = (high << 8) | low;
+    m_operandAddress += X;
+
+    if((uint16_t)(low + X) & 0xFF00) { // Offset passes page boundrary
+        return 1; // Extra cycle is needed
+    }
+    return 0;
+}
+
+// Absolute Indexed Addressing (Y): Like Absolute Addressing but the address is offset by the
+//      contents of the Y register.
+uint8_t Cpu6502::ABY() {
+    int8_t low = read(PC++); // Set low byte
+    int8_t high = read(PC++); // Set high byte
+    m_operandAddress = (high << 8) | low;
+    m_operandAddress += Y;
+
+    if((uint16_t)(low + Y) & 0xFF00) { // Offset passes page boundrary
+        return 1; // Extra cycle is needed
+    }
+    return 0;
+}
+
+// Implied Addressing: No operand
 uint8_t Cpu6502::IMP() {
     return 0;
 }
 
-uint8_t Cpu6502::ABS() {
-    uint16_t address = read(PC++); // Low byte
-    address += read(PC++) << 8;
-    m_operand = read(address);
-    return 0; 
-}
-
-uint8_t Cpu6502::ABY() {
-    return 0;
-}
-uint8_t Cpu6502::ABX() {
-    return 0;
-}
-
-uint8_t Cpu6502::IND() {
-    return 0;
-}
-uint8_t Cpu6502::IDX() {
-    return 0;
-}
-uint8_t Cpu6502::ACC() {
-    return 0;
-}
+// Relative Addressing: The second byte of the instruction is an offset from the program counter.
 uint8_t Cpu6502::REL() {
+    m_operandAddress = read(PC++); // Set low byte, high byte is 0
     return 0;
 }
 
-uint8_t Cpu6502::ZPA() {
+// Indexed Indirect Addressing / Indirect X: The second byte of the instruction, when added to the contents
+//      of the X register in zero page, points to the low byte of the address to the operand. The following
+//      byte in zero page memory is the high byte of the address to the operand.
+uint8_t Cpu6502::IDX() {
+    uint16_t addressPtr = read(PC++);
+    addressPtr = (addressPtr + X) & 0x00FF; // Address of address to operand
+
+    m_operandAddress = read(addressPtr); // Set low byte
+    m_operandAddress |= read((addressPtr + 1) & 0x00FF) << 8; // Set high byte
     return 0;
 }
 
-uint8_t Cpu6502::ZPX() {
+// Indirect Indexed Addressing / Indirect Y: The second byte of the instruction points, after adding the contents
+//      of the Y register, to the address of the operand. If adding the Y register causes the page (high byte) to change,
+//      an extra cycle is needed.
+uint8_t Cpu6502::IDY() {
+    uint16_t addressPtr = read(PC++);
+
+    int8_t low = read(addressPtr); // Set low byte
+    int8_t high = read(addressPtr + 1); // Set high byte
+
+    m_operandAddress = (high << 8) | low;
+    m_operandAddress += Y;
+
+    if((uint16_t)(low + Y) & 0xFF00) { // Offset passes page boundrary
+        return 1; // Extra cycle is needed
+    }
     return 0;
 }
 
-uint8_t Cpu6502::ZPY() {
+// Absolute Indirect: The second and third bytes of the instruction specify the low and high bytes of
+//      an address. That address points to the low byte of the address to the operand, the next byte points
+//      to the high byte of the operand. This instruction has a bug in hardware: If the low byte of the indirect address
+//      is 0xFF then the high byte of the resulting address wraps around to the same page as the low byte
+uint8_t Cpu6502::ABI() {
+    int8_t low = read(PC++); // Set low byte
+    int8_t high = read(PC++); // Set high byte
+
+    uint16_t addressPtr = (high << 8) | low;
+
+    if(low == 0xFF) { // Simulate bug
+        m_operandAddress = read(addressPtr & 0xFF00) << 8 | read(addressPtr); 
+    }
+    else {
+        m_operandAddress = read(addressPtr + 1) << 8 | read(addressPtr);
+    }
     return 0;
 }
+
+// ---------------------------------------------------------------------------------------
+// Instructions:
+// ---------------------------------------------------------------------------------------
 
 uint8_t Cpu6502::ADC() {
     return 0;
@@ -112,14 +201,6 @@ uint8_t Cpu6502::AND() {
 }
 
 uint8_t Cpu6502::ASL() {
-    return 0;
-}
-
-uint8_t Cpu6502::BBR() {
-    return 0;
-}
-
-uint8_t Cpu6502::BBS() {
     return 0;
 }
 
@@ -148,10 +229,6 @@ uint8_t Cpu6502::BNE() {
 }
 
 uint8_t Cpu6502::BPL() {
-    return 0;
-}
-
-uint8_t Cpu6502::BRA() {
     return 0;
 }
 
@@ -232,7 +309,7 @@ uint8_t Cpu6502::JSR() {
 }
 
 uint8_t Cpu6502::LDA() {
-    A = m_operand;
+    A = read(m_operandAddress);
     return 0;
 }
 
@@ -264,31 +341,11 @@ uint8_t Cpu6502::PHP() {
     return 0;
 }
 
-uint8_t Cpu6502::PHX() {
-    return 0;
-}
-
-uint8_t Cpu6502::PHY() {
-    return 0;
-}
-
 uint8_t Cpu6502::PLA() {
     return 0;
 }
 
 uint8_t Cpu6502::PLP() {
-    return 0;
-}
-
-uint8_t Cpu6502::PLX() {
-    return 0;
-}
-
-uint8_t Cpu6502::PLY() {
-    return 0;
-}
-
-uint8_t Cpu6502::RMB() {
     return 0;
 }
 
@@ -324,10 +381,6 @@ uint8_t Cpu6502::SEI() {
     return 0;
 }
 
-uint8_t Cpu6502::SMB() {
-    return 0;
-}
-
 uint8_t Cpu6502::STA() {
     return 0;
 }
@@ -340,22 +393,11 @@ uint8_t Cpu6502::STY() {
     return 0;
 }
 
-uint8_t Cpu6502::STZ() {
-    return 0;
-}
-
 uint8_t Cpu6502::TAX() {
     return 0;
 }
 
 uint8_t Cpu6502::TAY() {
-    return 0;
-}
-
-uint8_t Cpu6502::TRB() {
-    return 0;
-}
-uint8_t Cpu6502::TSB() {
     return 0;
 }
 
