@@ -16,9 +16,14 @@ public:
     uint8_t A, P, X, Y, SP;
     uint16_t PC;
 
+    enum Flags {
+        C = 0, Z = 1, I = 2, D = 3, B = 4, V = 6, N = 7
+    };
+
 private:
     uint8_t read(const uint16_t& address);
     void write(const uint8_t& data);
+    uint8_t getOperand();
 
 private:
     uint8_t m_ins;
@@ -26,6 +31,7 @@ private:
     Buss* m_buss;
 
     uint8_t m_operandAddress; // Stores the operand used for the current operation
+    uint8_t m_operand;
 
     struct Instruction {
         std::string name;

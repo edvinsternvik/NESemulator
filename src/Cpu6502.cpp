@@ -28,6 +28,7 @@ void Cpu6502::clock() {
     if(m_state == 0) { // Fetch
         m_ins = read(PC);
         ++PC;
+        m_operandAddress = m_operand = 0;
         (this->*m_operations[m_ins].addressing)();
     }
     else { // Execute
@@ -55,6 +56,11 @@ void Cpu6502::write(const uint8_t& data) {
 
 }
 
+uint8_t Cpu6502::getOperand() {
+    if(m_operandAddress) return read(m_operandAddress);
+    return m_operand;
+}
+
 // ---------------------------------------------------------------------------------------
 // Addressing Modes:
 // ---------------------------------------------------------------------------------------
@@ -66,7 +72,7 @@ uint8_t Cpu6502::ACC() {
 
 // Immediate Addressing: The second byte of the instruction specifies the operand directly.
 uint8_t Cpu6502::IMM() {
-    m_operandAddress = PC++;
+    m_operand = PC++;
     return 0;
 }
 
@@ -135,7 +141,10 @@ uint8_t Cpu6502::IMP() {
 
 // Relative Addressing: The second byte of the instruction is an offset from the program counter.
 uint8_t Cpu6502::REL() {
-    m_operandAddress = read(PC++); // Set low byte, high byte is 0
+    m_operand = read(PC++);
+    if(((PC & 0x00FF) + m_operand) & 0xFF00) {
+        return 1; // Add one cycle if page boundry is crossed
+    }
     return 0;
 }
 
