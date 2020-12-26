@@ -241,15 +241,30 @@ uint8_t Cpu6502::ASL() {
     return 0;
 }
 
+// Branch on Carry Clear
 uint8_t Cpu6502::BCC() {
+    if(!getFlag(Flags::C)) {
+        PC += getOperand();
+        return 1; // Add extra cycle if branched
+    }
     return 0;
 }
 
+// Branch on Carry Set
 uint8_t Cpu6502::BCS() {
+    if(getFlag(Flags::C)) {
+        PC += getOperand();
+        return 1; // Add extra cycle if branched
+    }
     return 0;
 }
 
+// Branch on EQual
 uint8_t Cpu6502::BEQ() {
+    if(getFlag(Flags::Z)) {
+        PC += getOperand();
+        return 1; // Add extra cycle if branched
+    }
     return 0;
 }
 
@@ -262,15 +277,30 @@ uint8_t Cpu6502::BIT() {
     return 0;
 }
 
+// Branch on MInus
 uint8_t Cpu6502::BMI() {
+    if(getFlag(Flags::N)) {
+        PC += getOperand();
+        return 1; // Add extra cycle if branched
+    }
     return 0;
 }
 
+// Branch on Not Equal
 uint8_t Cpu6502::BNE() {
+    if(!getFlag(Flags::Z)) {
+        PC += getOperand();
+        return 1; // Add extra cycle if branched
+    }
     return 0;
 }
 
+// Branch on PLus
 uint8_t Cpu6502::BPL() {
+    if(!getFlag(Flags::N)) {
+        PC += getOperand();
+        return 1; // Add extra cycle if branched
+    }
     return 0;
 }
 
@@ -278,11 +308,21 @@ uint8_t Cpu6502::BRK() {
     return 0;
 }
 
+// Branch on oVerflow Clear
 uint8_t Cpu6502::BVC() {
+    if(!getFlag(Flags::V)) {
+        PC += getOperand();
+        return 1; // Add extra cycle if branched
+    }
     return 0;
 }
 
+// Branch on oVerflow Set
 uint8_t Cpu6502::BVS() {
+    if(getFlag(Flags::V)) {
+        PC += getOperand();
+        return 1; // Add extra cycle if branched
+    }
     return 0;
 }
 
