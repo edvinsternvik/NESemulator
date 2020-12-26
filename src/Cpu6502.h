@@ -24,6 +24,8 @@ private:
     uint8_t read(const uint16_t& address);
     void write(const uint8_t& data);
     uint8_t getOperand();
+    uint8_t getFlag(const Flags& flag);
+    void setFlag(const Flags& flag, const bool& value);
 
 private:
     uint8_t m_ins;

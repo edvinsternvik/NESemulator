@@ -61,6 +61,15 @@ uint8_t Cpu6502::getOperand() {
     return m_operand;
 }
 
+uint8_t Cpu6502::getFlag(const Flags& flag) {
+    return P & (1 << flag);
+}
+
+void Cpu6502::setFlag(const Flags& flag, const bool& value) {
+    if(value) P = P | (1 << flag);
+    else      P = P & (1 << flag);
+}
+
 // ---------------------------------------------------------------------------------------
 // Addressing Modes:
 // ---------------------------------------------------------------------------------------
@@ -201,15 +210,34 @@ uint8_t Cpu6502::ABI() {
 // Instructions:
 // ---------------------------------------------------------------------------------------
 
+// ADd with Carry
 uint8_t Cpu6502::ADC() {
+    uint8_t operand = getOperand();
+    uint16_t res = A + operand + getFlag(Flags::C);
+    setFlag(Flags::C, res & 0x0100);
+    setFlag(Flags::Z, res & 0x00FF);
+    setFlag(Flags::V, (~(A ^ operand) & (A ^ res)) & 0x0080);
+    setFlag(Flags::N, res & 0x0080);
+
+    A = res & 0x00FF;
     return 0;
 }
 
+// Bitwise AND
 uint8_t Cpu6502::AND() {
+    A = A & getOperand();
+    setFlag(Z, A == 0);
+    setFlag(N, A & 0x80);
     return 0;
 }
 
+// Arithmetic Shift Left
 uint8_t Cpu6502::ASL() {
+    uint16_t res = A << 1;
+    A = res & 0x00FF;
+    setFlag(Flags::C, res & 0x0100);
+    setFlag(Flags::Z, A == 0);
+    setFlag(Flags::N, A & 0x80);
     return 0;
 }
 
@@ -225,7 +253,12 @@ uint8_t Cpu6502::BEQ() {
     return 0;
 }
 
+// test BITs
 uint8_t Cpu6502::BIT() {
+    uint8_t res = A & read(m_operandAddress);
+    setFlag(Flags::Z, res == 0);
+    setFlag(Flags::V, res & 0x40);
+    setFlag(Flags::N, res & 0x80);
     return 0;
 }
 
