@@ -326,19 +326,27 @@ uint8_t Cpu6502::BVS() {
     return 0;
 }
 
+// CLear Carry
 uint8_t Cpu6502::CLC() {
+    setFlag(Flags::C, 0);
     return 0;
 }
 
+// CLear Decimal
 uint8_t Cpu6502::CLD() {
+    setFlag(Flags::D, 0);
     return 0;
 }
 
+// CLear Interrupt
 uint8_t Cpu6502::CLI() {
+    setFlag(Flags::I, 0);
     return 0;
 }
 
+// Clear oVerflow
 uint8_t Cpu6502::CLV() {
+    setFlag(Flags::V, 0);
     return 0;
 }
 
@@ -451,15 +459,21 @@ uint8_t Cpu6502::SBC() {
     return 0;
 }
 
+// Set Carry
 uint8_t Cpu6502::SEC() {
+    setFlag(Flags::C, 1);
     return 0;
 }
 
+// Set Decimal
 uint8_t Cpu6502::SED() {
+    setFlag(Flags::D, 1);
     return 0;
 }
 
+// Set Interrupt
 uint8_t Cpu6502::SEI() {
+    setFlag(Flags::I, 1);
     return 0;
 }
 
