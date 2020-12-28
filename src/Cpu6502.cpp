@@ -350,15 +350,31 @@ uint8_t Cpu6502::CLV() {
     return 0;
 }
 
-uint8_t Cpu6502::CMP(){
+// CoMPare accumulator
+uint8_t Cpu6502::CMP() {
+    uint8_t operand = getOperand();
+    uint8_t res = A - operand;
+    setFlag(Flags::C, A >= operand);
+    setFlag(Flags::Z, A == operand);
+    setFlag(Flags::N, res & 0x0080);
     return 0;
 }
 
 uint8_t Cpu6502::CPX() {
+    uint8_t operand = getOperand();
+    uint8_t res = X - operand;
+    setFlag(Flags::C, X >= operand);
+    setFlag(Flags::Z, X == operand);
+    setFlag(Flags::N, res & 0x0080);
     return 0;
 }
 
 uint8_t Cpu6502::CPY() {
+    uint8_t operand = getOperand();
+    uint8_t res = Y - operand;
+    setFlag(Flags::C, Y >= operand);
+    setFlag(Flags::Z, Y == operand);
+    setFlag(Flags::N, res & 0x0080);
     return 0;
 }
 
