@@ -52,8 +52,8 @@ uint8_t Cpu6502::read(const uint16_t& address) {
     return m_buss->data[address];
 }
 
-void Cpu6502::write(const uint8_t& data) {
-
+void Cpu6502::write(const uint16_t& address, const uint8_t& data) {
+    m_buss->data[address] = data;
 }
 
 uint8_t Cpu6502::getOperand() {
@@ -360,6 +360,7 @@ uint8_t Cpu6502::CMP() {
     return 0;
 }
 
+// ComPare X
 uint8_t Cpu6502::CPX() {
     uint8_t operand = getOperand();
     uint8_t res = X - operand;
@@ -369,6 +370,7 @@ uint8_t Cpu6502::CPX() {
     return 0;
 }
 
+// ComPare Y
 uint8_t Cpu6502::CPY() {
     uint8_t operand = getOperand();
     uint8_t res = Y - operand;
@@ -378,15 +380,28 @@ uint8_t Cpu6502::CPY() {
     return 0;
 }
 
+// DECrement memory
 uint8_t Cpu6502::DEC() {
+    uint8_t res = getOperand() - 1;
+    write(m_operandAddress, res);
+    setFlag(Flags::Z, res == 0);
+    setFlag(Flags::N, res & 0x80);
     return 0;
 }
 
+// DEcrement X
 uint8_t Cpu6502::DEX() {
+    --X;
+    setFlag(Flags::Z, X == 0);
+    setFlag(Flags::N, X & 0x80);
     return 0;
 }
 
+// DEcrement Y
 uint8_t Cpu6502::DEY() {
+    --Y;
+    setFlag(Flags::Z, Y == 0);
+    setFlag(Flags::N, Y & 0x80);
     return 0;
 }
 
@@ -394,15 +409,28 @@ uint8_t Cpu6502::EOR() {
     return 0;
 }
 
+// INCrement memory
 uint8_t Cpu6502::INC() {
+    uint8_t res = getOperand() + 1;
+    write(m_operandAddress, res);
+    setFlag(Flags::Z, res == 0);
+    setFlag(Flags::N, res & 0x80);
     return 0;
 }
 
+// INcrement X
 uint8_t Cpu6502::INX() {
+    ++X;
+    setFlag(Flags::Z, X == 0);
+    setFlag(Flags::N, X & 0x80);
     return 0;
 }
 
+// INcrement Y
 uint8_t Cpu6502::INY() {
+    ++Y;
+    setFlag(Flags::Z, Y == 0);
+    setFlag(Flags::N, Y & 0x80);
     return 0;
 }
 
