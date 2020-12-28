@@ -461,16 +461,27 @@ uint8_t Cpu6502::JSR() {
     return 0;
 }
 
+// LoaD Accumulator
 uint8_t Cpu6502::LDA() {
-    A = read(m_operandAddress);
+    A = getOperand();
+    setFlag(Flags::Z, A == 0);
+    setFlag(Flags::N, A & 0x80);
     return 0;
 }
 
+// LoaD X
 uint8_t Cpu6502::LDX() {
+    X = getOperand();
+    setFlag(Flags::Z, X == 0);
+    setFlag(Flags::N, X & 0x80);
     return 0;
 }
 
+// LoaD Y
 uint8_t Cpu6502::LDY() {
+    Y = getOperand();
+    setFlag(Flags::Z, Y == 0);
+    setFlag(Flags::N, Y & 0x80);
     return 0;
 }
 
@@ -540,15 +551,21 @@ uint8_t Cpu6502::SEI() {
     return 0;
 }
 
+// STore Accumulator
 uint8_t Cpu6502::STA() {
+    write(m_operandAddress, A);
     return 0;
 }
 
+// STore X
 uint8_t Cpu6502::STX() {
+    write(m_operandAddress, X);
     return 0;
 }
 
+// STore Y
 uint8_t Cpu6502::STY() {
+    write(m_operandAddress, Y);
     return 0;
 }
 
