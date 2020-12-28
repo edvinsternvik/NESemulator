@@ -56,6 +56,16 @@ void Cpu6502::write(const uint16_t& address, const uint8_t& data) {
     m_buss->data[address] = data;
 }
 
+void Cpu6502::push(const uint8_t& data) {
+    m_buss->data[SP] = data;
+    SP--;
+}
+
+uint8_t Cpu6502::pull() {
+    SP++;
+    return m_buss->data[SP];
+}
+
 uint8_t Cpu6502::getOperand() {
     if(m_operandAddress) return read(m_operandAddress);
     return m_operand;
@@ -438,11 +448,16 @@ uint8_t Cpu6502::INY() {
     return 0;
 }
 
+// JuMP
 uint8_t Cpu6502::JMP() {
+    PC = m_operandAddress;
     return 0;
 }
 
+// Jump to SubRoutine
 uint8_t Cpu6502::JSR() {
+    push(PC - 1);
+    PC = m_operandAddress;
     return 0;
 }
 

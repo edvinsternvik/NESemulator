@@ -23,6 +23,8 @@ public:
 private:
     uint8_t read(const uint16_t& address);
     void write(const uint16_t& address, const uint8_t& data);
+    void push(const uint8_t& data);
+    uint8_t pull();
     uint8_t getOperand();
     uint8_t getFlag(const Flags& flag);
     void setFlag(const Flags& flag, const bool& value);
@@ -32,7 +34,7 @@ private:
     uint8_t m_state = 0;
     Buss* m_buss;
 
-    uint8_t m_operandAddress; // Stores the operand used for the current operation
+    uint16_t m_operandAddress; // Stores the operand used for the current operation
     uint8_t m_operand;
 
     struct Instruction {
