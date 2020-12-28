@@ -405,7 +405,11 @@ uint8_t Cpu6502::DEY() {
     return 0;
 }
 
+// bitwise Exclusive OR
 uint8_t Cpu6502::EOR() {
+    A = A ^ getOperand();
+    setFlag(Flags::Z, A == 0);
+    setFlag(Flags::N, A & 0x80);
     return 0;
 }
 
