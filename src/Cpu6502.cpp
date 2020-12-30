@@ -56,13 +56,13 @@ void Cpu6502::write(const uint16_t& address, const uint8_t& data) {
 }
 
 void Cpu6502::push(const uint8_t& data) {
-    m_buss->data[SP] = data;
+    write(0x0100 | (uint16_t)SP, data);
     SP--;
 }
 
 uint8_t Cpu6502::pull() {
     SP++;
-    return m_buss->data[SP];
+    return read(0x0100 | (uint16_t)SP);
 }
 
 uint8_t Cpu6502::getOperand() {
@@ -523,19 +523,27 @@ uint8_t Cpu6502::ORA() {
     return 0;
 }
 
+// PusH Accumulator
 uint8_t Cpu6502::PHA() {
+    push(A);
     return 0;
 }
 
+// PusH Processor status
 uint8_t Cpu6502::PHP() {
+    push(P);
     return 0;
 }
 
+// PuLl Accumulator
 uint8_t Cpu6502::PLA() {
+    A = pull();
     return 0;
 }
 
+// PuLl Processor status
 uint8_t Cpu6502::PLP() {
+    P = pull();
     return 0;
 }
 
