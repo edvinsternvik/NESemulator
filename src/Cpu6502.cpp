@@ -462,7 +462,11 @@ uint8_t Cpu6502::JMP() {
 
 // Jump to SubRoutine
 uint8_t Cpu6502::JSR() {
-    push(PC - 1);
+    uint16_t retAddr = PC - 1;
+    uint8_t low = retAddr & 0x00FF;
+    uint8_t high = retAddr >> 8;
+    push(high);
+    push(low);
     PC = m_operandAddress;
     return 0;
 }
@@ -589,7 +593,12 @@ uint8_t Cpu6502::RTI() {
     return 0;
 }
 
+// ReTurn Subroutine
 uint8_t Cpu6502::RTS() {
+    uint8_t low = pull();
+    uint8_t high = pull();
+    uint16_t retAddr = (high << 8) | low;
+    PC = retAddr + 1;
     return 0;
 }
 
