@@ -564,14 +564,14 @@ uint8_t Cpu6502::ROL() {
 uint8_t Cpu6502::ROR() {
     uint8_t res;
     if(m_operations[m_ins].addressing == &Cpu6502::ACC) {
-        setFlag(Flags::C, A & 0x01);
         res = ((getFlag(Flags::C) << 8) | A) >> 1;
+        setFlag(Flags::C, A & 0x01);
         A = res;
     }
     else {
         int operand = getOperand();
-        setFlag(Flags::C, operand & 0x01);
         res = ((getFlag(Flags::C) << 8) | operand) >> 1;
+        setFlag(Flags::C, operand & 0x01);
         write(m_operandAddress, res);
     }
     setFlag(Flags::Z, res == 0);
