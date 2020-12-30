@@ -244,7 +244,7 @@ uint8_t Cpu6502::AND() {
 // Arithmetic Shift Left
 uint8_t Cpu6502::ASL() {
     uint16_t res = 0;
-    if(m_operations[m_ins].addressing == Cpu6502::ACC) {
+    if(m_operations[m_ins].addressing == &Cpu6502::ACC) {
         res = A << 1;
         A = res & 0x00FF;
     }
@@ -496,7 +496,7 @@ uint8_t Cpu6502::LDY() {
 // Logical Shift Right
 uint8_t Cpu6502::LSR() {
     uint16_t res = 0;
-    if(m_operations[m_ins].addressing == Cpu6502::ACC) {
+    if(m_operations[m_ins].addressing == &Cpu6502::ACC) {
         setFlag(Flags::C, A & 0x01);
         res = A >> 1;
         A = res & 0x00FF;
@@ -544,7 +544,7 @@ uint8_t Cpu6502::PLP() {
 // ROtate Left
 uint8_t Cpu6502::ROL() {
     uint16_t res;
-    if(m_operations[m_ins].addressing == Cpu6502::ACC) {
+    if(m_operations[m_ins].addressing == &Cpu6502::ACC) {
         res = ((uint16_t)A << 1);
         if(getFlag(Flags::C)) res |= 0x0001;
         A = res & 0x00FF;
@@ -563,7 +563,7 @@ uint8_t Cpu6502::ROL() {
 // ROtate Right
 uint8_t Cpu6502::ROR() {
     uint8_t res;
-    if(m_operations[m_ins].addressing == Cpu6502::ACC) {
+    if(m_operations[m_ins].addressing == &Cpu6502::ACC) {
         setFlag(Flags::C, A & 0x01);
         res = ((getFlag(Flags::C) << 8) | A) >> 1;
         A = res;
