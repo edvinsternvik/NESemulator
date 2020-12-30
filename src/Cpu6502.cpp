@@ -243,11 +243,19 @@ uint8_t Cpu6502::AND() {
 
 // Arithmetic Shift Left
 uint8_t Cpu6502::ASL() {
-    uint16_t res = A << 1;
-    A = res & 0x00FF;
+    uint16_t res = 0;
+    if(m_operations[m_ins].addressing == Cpu6502::ACC) {
+        res = A << 1;
+        A = res & 0x00FF;
+    }
+    else {
+        res = getOperand() << 1;
+        write(m_operandAddress, res);
+    }
+
     setFlag(Flags::C, res & 0x0100);
-    setFlag(Flags::Z, A == 0);
-    setFlag(Flags::N, A & 0x80);
+    setFlag(Flags::Z, (res & 0x00FF) == 0);
+    setFlag(Flags::N, res & 0x0080);
     return 0;
 }
 
@@ -485,7 +493,23 @@ uint8_t Cpu6502::LDY() {
     return 0;
 }
 
+// Logical Shift Right
 uint8_t Cpu6502::LSR() {
+    uint16_t res = 0;
+    if(m_operations[m_ins].addressing == Cpu6502::ACC) {
+        setFlag(Flags::C, A & 0x01);
+        res = A >> 1;
+        A = res & 0x00FF;
+    }
+    else {
+        uint8_t operand = getOperand();
+        setFlag(Flags::C, operand & 0x01);
+        res = operand >> 1;
+        write(m_operandAddress, res);
+    }
+
+    setFlag(Flags::Z, (res & 0x00FF) == 0);
+    setFlag(Flags::N, res & 0x0080);
     return 0;
 }
 
