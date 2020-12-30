@@ -517,7 +517,11 @@ uint8_t Cpu6502::NOP() {
     return 0;
 }
 
+// OR Accumulator
 uint8_t Cpu6502::ORA() {
+    A = A | getOperand();
+    setFlag(Flags::Z, A == 0);
+    setFlag(Flags::N, A & 0x80);
     return 0;
 }
 
@@ -537,11 +541,41 @@ uint8_t Cpu6502::PLP() {
     return 0;
 }
 
+// ROtate Left
 uint8_t Cpu6502::ROL() {
+    uint16_t res;
+    if(m_operations[m_ins].addressing == Cpu6502::ACC) {
+        res = ((uint16_t)A << 1);
+        if(getFlag(Flags::C)) res |= 0x0001;
+        A = res & 0x00FF;
+    }
+    else {
+        res = ((uint16_t)getOperand() << 1);
+        if(getFlag(Flags::C)) res |= 0x0001;
+        write(m_operandAddress, res & 0x00FF);
+    }
+    setFlag(Flags::C, res & 0x0100);
+    setFlag(Flags::Z, res & 0x00FF == 0);
+    setFlag(Flags::N, res & 0x0080);
     return 0;
 }
 
+// ROtate Right
 uint8_t Cpu6502::ROR() {
+    uint8_t res;
+    if(m_operations[m_ins].addressing == Cpu6502::ACC) {
+        setFlag(Flags::C, A & 0x01);
+        res = ((getFlag(Flags::C) << 8) | A) >> 1;
+        A = res;
+    }
+    else {
+        int operand = getOperand();
+        setFlag(Flags::C, operand & 0x01);
+        res = ((getFlag(Flags::C) << 8) | operand) >> 1;
+        write(m_operandAddress, res);
+    }
+    setFlag(Flags::Z, res == 0);
+    setFlag(Flags::N, res & 0x80);
     return 0;
 }
 
