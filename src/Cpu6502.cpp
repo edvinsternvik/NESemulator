@@ -28,7 +28,6 @@ void Cpu6502::clock() {
     if(m_state == 0) { // Fetch
         m_ins = read(PC);
         ++PC;
-        m_operandAddress = m_operand = 0;
         (this->*m_operations[m_ins].addressing)();
     }
     else { // Execute
@@ -67,8 +66,7 @@ uint8_t Cpu6502::pull() {
 }
 
 uint8_t Cpu6502::getOperand() {
-    if(m_operandAddress) return read(m_operandAddress);
-    return m_operand;
+    return read(m_operandAddress);
 }
 
 uint8_t Cpu6502::getFlag(const Flags& flag) {
@@ -91,7 +89,7 @@ uint8_t Cpu6502::ACC() {
 
 // Immediate Addressing: The second byte of the instruction specifies the operand directly.
 uint8_t Cpu6502::IMM() {
-    m_operand = PC++;
+    m_operandAddress = PC++;
     return 0;
 }
 
@@ -160,8 +158,8 @@ uint8_t Cpu6502::IMP() {
 
 // Relative Addressing: The second byte of the instruction is an offset from the program counter.
 uint8_t Cpu6502::REL() {
-    m_operand = read(PC++);
-    if(((PC & 0x00FF) + m_operand) & 0xFF00) {
+    m_operandAddress = read(PC++);
+    if(((PC & 0x00FF) + m_operandAddress) & 0xFF00) {
         return 1; // Add one cycle if page boundry is crossed
     }
     return 0;
@@ -262,7 +260,7 @@ uint8_t Cpu6502::ASL() {
 // Branch on Carry Clear
 uint8_t Cpu6502::BCC() {
     if(!getFlag(Flags::C)) {
-        PC += getOperand();
+        PC += m_operandAddress;
         return 1; // Add extra cycle if branched
     }
     return 0;
@@ -271,7 +269,7 @@ uint8_t Cpu6502::BCC() {
 // Branch on Carry Set
 uint8_t Cpu6502::BCS() {
     if(getFlag(Flags::C)) {
-        PC += getOperand();
+        PC += m_operandAddress;
         return 1; // Add extra cycle if branched
     }
     return 0;
@@ -280,7 +278,7 @@ uint8_t Cpu6502::BCS() {
 // Branch on EQual
 uint8_t Cpu6502::BEQ() {
     if(getFlag(Flags::Z)) {
-        PC += getOperand();
+        PC += m_operandAddress;
         return 1; // Add extra cycle if branched
     }
     return 0;
@@ -288,7 +286,7 @@ uint8_t Cpu6502::BEQ() {
 
 // test BITs
 uint8_t Cpu6502::BIT() {
-    uint8_t res = A & read(m_operandAddress);
+    uint8_t res = A & getOperand();
     setFlag(Flags::Z, res == 0);
     setFlag(Flags::V, res & 0x40);
     setFlag(Flags::N, res & 0x80);
@@ -298,7 +296,7 @@ uint8_t Cpu6502::BIT() {
 // Branch on MInus
 uint8_t Cpu6502::BMI() {
     if(getFlag(Flags::N)) {
-        PC += getOperand();
+        PC += m_operandAddress;
         return 1; // Add extra cycle if branched
     }
     return 0;
@@ -307,7 +305,7 @@ uint8_t Cpu6502::BMI() {
 // Branch on Not Equal
 uint8_t Cpu6502::BNE() {
     if(!getFlag(Flags::Z)) {
-        PC += getOperand();
+        PC += m_operandAddress;
         return 1; // Add extra cycle if branched
     }
     return 0;
@@ -316,7 +314,7 @@ uint8_t Cpu6502::BNE() {
 // Branch on PLus
 uint8_t Cpu6502::BPL() {
     if(!getFlag(Flags::N)) {
-        PC += getOperand();
+        PC += m_operandAddress;
         return 1; // Add extra cycle if branched
     }
     return 0;
@@ -329,7 +327,7 @@ uint8_t Cpu6502::BRK() {
 // Branch on oVerflow Clear
 uint8_t Cpu6502::BVC() {
     if(!getFlag(Flags::V)) {
-        PC += getOperand();
+        PC += m_operandAddress;
         return 1; // Add extra cycle if branched
     }
     return 0;
@@ -338,7 +336,7 @@ uint8_t Cpu6502::BVC() {
 // Branch on oVerflow Set
 uint8_t Cpu6502::BVS() {
     if(getFlag(Flags::V)) {
-        PC += getOperand();
+        PC += m_operandAddress;
         return 1; // Add extra cycle if branched
     }
     return 0;

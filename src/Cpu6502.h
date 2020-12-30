@@ -34,8 +34,9 @@ private:
     uint8_t m_state = 0;
     Buss* m_buss;
 
-    uint16_t m_operandAddress; // Stores the operand used for the current operation
-    uint8_t m_operand;
+    uint16_t m_operandAddress; // Stores the address to the operand used in
+    // the current operation, unless the operand is an andress, in which case this
+    // is the operand.
 
     struct Instruction {
         std::string name;
