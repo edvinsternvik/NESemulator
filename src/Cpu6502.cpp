@@ -250,7 +250,7 @@ uint8_t Cpu6502::ASL() {
     }
     else {
         res = getOperand() << 1;
-        write(m_operandAddress, res);
+        write(m_operandAddress, res & 0x00FF);
     }
 
     setFlag(Flags::C, res & 0x0100);
@@ -505,7 +505,7 @@ uint8_t Cpu6502::LSR() {
         uint8_t operand = getOperand();
         setFlag(Flags::C, operand & 0x01);
         res = operand >> 1;
-        write(m_operandAddress, res);
+        write(m_operandAddress, res & 0x00FF);
     }
 
     setFlag(Flags::Z, (res & 0x00FF) == 0);
