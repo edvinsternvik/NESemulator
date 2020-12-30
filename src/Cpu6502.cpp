@@ -75,7 +75,7 @@ uint8_t Cpu6502::getFlag(const Flags& flag) {
 
 void Cpu6502::setFlag(const Flags& flag, const bool& value) {
     if(value) P = P | (1 << flag);
-    else      P = P & (1 << flag);
+    else      P = P & ((1 << flag) ^ 0xFF);
 }
 
 // ---------------------------------------------------------------------------------------
