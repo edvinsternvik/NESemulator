@@ -155,8 +155,9 @@ uint8_t Cpu6502::IMP() {
 
 // Relative Addressing: The second byte of the instruction is an offset from the program counter.
 uint8_t Cpu6502::REL() {
-    m_operandAddress = read(PC++);
-    if(((PC & 0x00FF) + m_operandAddress) & 0xFF00) {
+    int8_t relAddr = read(PC++);
+    m_operandAddress = (uint8_t)relAddr;
+    if(((PC & 0x00FF) + relAddr) & 0xFF00) {
         return 1; // Add one cycle if page boundry is crossed
     }
     return 0;
