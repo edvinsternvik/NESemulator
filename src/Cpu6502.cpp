@@ -260,7 +260,7 @@ uint8_t Cpu6502::ASL() {
 // Branch on Carry Clear
 uint8_t Cpu6502::BCC() {
     if(!getFlag(Flags::C)) {
-        PC += m_operandAddress;
+        PC += (int8_t)m_operandAddress;
         return 1; // Add extra cycle if branched
     }
     return 0;
@@ -269,7 +269,7 @@ uint8_t Cpu6502::BCC() {
 // Branch on Carry Set
 uint8_t Cpu6502::BCS() {
     if(getFlag(Flags::C)) {
-        PC += m_operandAddress;
+        PC += (int8_t)m_operandAddress;
         return 1; // Add extra cycle if branched
     }
     return 0;
@@ -278,7 +278,7 @@ uint8_t Cpu6502::BCS() {
 // Branch on EQual
 uint8_t Cpu6502::BEQ() {
     if(getFlag(Flags::Z)) {
-        PC += m_operandAddress;
+        PC += (int8_t)m_operandAddress;
         return 1; // Add extra cycle if branched
     }
     return 0;
@@ -296,7 +296,7 @@ uint8_t Cpu6502::BIT() {
 // Branch on MInus
 uint8_t Cpu6502::BMI() {
     if(getFlag(Flags::N)) {
-        PC += m_operandAddress;
+        PC += (int8_t)m_operandAddress;
         return 1; // Add extra cycle if branched
     }
     return 0;
@@ -305,7 +305,7 @@ uint8_t Cpu6502::BMI() {
 // Branch on Not Equal
 uint8_t Cpu6502::BNE() {
     if(!getFlag(Flags::Z)) {
-        PC += m_operandAddress;
+        PC += (int8_t)m_operandAddress;
         return 1; // Add extra cycle if branched
     }
     return 0;
@@ -314,7 +314,7 @@ uint8_t Cpu6502::BNE() {
 // Branch on PLus
 uint8_t Cpu6502::BPL() {
     if(!getFlag(Flags::N)) {
-        PC += m_operandAddress;
+        PC += (int8_t)m_operandAddress;
         return 1; // Add extra cycle if branched
     }
     return 0;
@@ -327,7 +327,7 @@ uint8_t Cpu6502::BRK() {
 // Branch on oVerflow Clear
 uint8_t Cpu6502::BVC() {
     if(!getFlag(Flags::V)) {
-        PC += m_operandAddress;
+        PC += (int8_t)m_operandAddress;
         return 1; // Add extra cycle if branched
     }
     return 0;
@@ -336,7 +336,7 @@ uint8_t Cpu6502::BVC() {
 // Branch on oVerflow Set
 uint8_t Cpu6502::BVS() {
     if(getFlag(Flags::V)) {
-        PC += m_operandAddress;
+        PC += (int8_t)m_operandAddress;
         return 1; // Add extra cycle if branched
     }
     return 0;
