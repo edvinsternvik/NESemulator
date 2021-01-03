@@ -126,8 +126,8 @@ uint8_t Cpu6502::ZPY() {
 // Absolute Indexed Addressing (X): Like Absolute Addressing but the address is offset by the
 //      contents of the X register.
 uint8_t Cpu6502::ABX() {
-    int8_t low = read(PC++); // Set low byte
-    int8_t high = read(PC++); // Set high byte
+    uint8_t low = read(PC++); // Set low byte
+    uint8_t high = read(PC++); // Set high byte
     m_operandAddress = (high << 8) | low;
     m_operandAddress += X;
 
@@ -140,8 +140,8 @@ uint8_t Cpu6502::ABX() {
 // Absolute Indexed Addressing (Y): Like Absolute Addressing but the address is offset by the
 //      contents of the Y register.
 uint8_t Cpu6502::ABY() {
-    int8_t low = read(PC++); // Set low byte
-    int8_t high = read(PC++); // Set high byte
+    uint8_t low = read(PC++); // Set low byte
+    uint8_t high = read(PC++); // Set high byte
     m_operandAddress = (high << 8) | low;
     m_operandAddress += Y;
 
