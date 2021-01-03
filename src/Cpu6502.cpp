@@ -183,8 +183,8 @@ uint8_t Cpu6502::IDX() {
 uint8_t Cpu6502::IDY() {
     uint16_t addressPtr = read(PC++);
 
-    int8_t low = read(addressPtr); // Set low byte
-    int8_t high = read(addressPtr + 1); // Set high byte
+    uint8_t low = read(addressPtr); // Set low byte
+    uint8_t high = read(addressPtr + 1); // Set high byte
 
     m_operandAddress = (high << 8) | low;
     m_operandAddress += Y;
