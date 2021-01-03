@@ -200,8 +200,8 @@ uint8_t Cpu6502::IDY() {
 //      to the high byte of the operand. This instruction has a bug in hardware: If the low byte of the indirect address
 //      is 0xFF then the high byte of the resulting address wraps around to the same page as the low byte
 uint8_t Cpu6502::ABI() {
-    int8_t low = read(PC++); // Set low byte
-    int8_t high = read(PC++); // Set high byte
+    uint8_t low = read(PC++); // Set low byte
+    uint8_t high = read(PC++); // Set high byte
 
     uint16_t addressPtr = (high << 8) | low;
 
