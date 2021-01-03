@@ -31,7 +31,7 @@ private:
 
 private:
     uint8_t m_ins;
-    uint8_t m_state = 0;
+    uint8_t m_state = 0, m_extraCycles = 0;
     Buss* m_buss;
 
     uint16_t m_operandAddress; // Stores the address to the operand used in

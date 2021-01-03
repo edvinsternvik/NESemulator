@@ -28,19 +28,16 @@ void Cpu6502::clock() {
     if(m_state == 0) { // Fetch
         m_ins = read(PC);
         ++PC;
-        (this->*m_operations[m_ins].addressing)();
+        m_extraCycles = (this->*m_operations[m_ins].addressing)();
     }
-    else { // Execute
-        if(m_state == 1) {
-            (this->*m_operations[m_ins].op)();
-        }
-
-        if(m_state + 1 == m_operations[m_ins].cycles) { // Check if done with instruction
-            m_state = 0;
-            return;
-        }
+    else if(m_state == 1){ // Execute
+        m_extraCycles += (this->*m_operations[m_ins].op)();
     }
     ++m_state;
+
+    if(m_state == m_operations[m_ins].cycles + m_extraCycles) { // Check if done with instruction
+        m_state = 0;
+    }
 }
 
 void Cpu6502::registerBuss(Buss* buss) {
