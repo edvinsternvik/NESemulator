@@ -600,7 +600,17 @@ uint8_t Cpu6502::RTS() {
     return 0;
 }
 
+// SuBtract with Carry
 uint8_t Cpu6502::SBC() {
+    uint8_t operand = getOperand();
+    operand = ~operand;
+    uint16_t res = A + operand + getFlag(Flags::C);
+    setFlag(Flags::C, !(res & 0x0100));
+    setFlag(Flags::Z, (res & 0x00FF) == 0);
+    setFlag(Flags::V, (~(A ^ operand) & (A ^ res)) & 0x0080);
+    setFlag(Flags::N, res & 0x0080);
+
+    A = res & 0x00FF;
     return 0;
 }
 
