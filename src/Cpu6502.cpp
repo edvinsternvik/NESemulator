@@ -221,7 +221,7 @@ uint8_t Cpu6502::ADC() {
     uint8_t operand = getOperand();
     uint16_t res = A + operand + getFlag(Flags::C);
     setFlag(Flags::C, res & 0x0100);
-    setFlag(Flags::Z, res & 0x00FF == 0);
+    setFlag(Flags::Z, (res & 0x00FF) == 0);
     setFlag(Flags::V, (~(A ^ operand) & (A ^ res)) & 0x0080);
     setFlag(Flags::N, res & 0x0080);
 
@@ -563,7 +563,7 @@ uint8_t Cpu6502::ROL() {
         write(m_operandAddress, res & 0x00FF);
     }
     setFlag(Flags::C, res & 0x0100);
-    setFlag(Flags::Z, res & 0x00FF == 0);
+    setFlag(Flags::Z, (res & 0x00FF) == 0);
     setFlag(Flags::N, res & 0x0080);
     return 0;
 }
