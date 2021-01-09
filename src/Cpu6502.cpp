@@ -22,26 +22,40 @@ Cpu6502::Cpu6502() {
         {"CPX", &c::CPX, &c::IMM, 2}, {"SBC", &c::SBC, &c::IDX, 6}, {"XXX", &c::XXX, &c::IMP, 2}, {"XXX", &c::XXX, &c::IMP, 2}, {"CPX", &c::CPX, &c::ZPA, 3}, {"SBC", &c::SBC, &c::ZPA, 3}, {"INC", &c::INC, &c::ZPA, 5}, {"XXX", &c::XXX, &c::IMP, 2}, {"INX", &c::INX, &c::IMP, 2}, {"SBC", &c::SBC, &c::IMM, 2}, {"NOP", &c::NOP, &c::IMP, 2}, {"XXX", &c::XXX, &c::IMP, 2}, {"CPX", &c::CPX, &c::ABS, 4}, {"SBC", &c::SBC, &c::ABS, 4}, {"INC", &c::INC, &c::ABS, 6}, {"XXX", &c::XXX, &c::IMP, 2},
         {"BEQ", &c::BEQ, &c::REL, 2}, {"SBC", &c::SBC, &c::IDY, 5}, {"XXX", &c::XXX, &c::IMP, 2}, {"XXX", &c::XXX, &c::IMP, 2}, {"XXX", &c::XXX, &c::IMP, 2}, {"SBC", &c::SBC, &c::ZPX, 4}, {"INC", &c::INC, &c::ZPX, 6}, {"XXX", &c::XXX, &c::IMP, 2}, {"SED", &c::SED, &c::IMP, 2}, {"SBC", &c::SBC, &c::ABY, 4}, {"XXX", &c::XXX, &c::IMP, 2}, {"XXX", &c::XXX, &c::IMP, 2}, {"XXX", &c::XXX, &c::IMP, 2}, {"SBC", &c::SBC, &c::ABX, 4}, {"INC", &c::INC, &c::ABX, 7}, {"XXX", &c::XXX, &c::IMP, 2}   
     };
+
+    P = 0x34;
+    A = X = Y = 0;
+    SP = 0xFD;
+    reset();
 }
 
 void Cpu6502::clock() {
-    if(m_state == 0) { // Fetch
+    if(m_cycles == 0) { // Fetch
         m_ins = read(PC);
         ++PC;
-        m_extraCycles = (this->*m_operations[m_ins].addressing)();
+        m_state = 0;
+        m_cycles = (this->*m_operations[m_ins].addressing)();
     }
     else if(m_state == 1){ // Execute
-        m_extraCycles += (this->*m_operations[m_ins].op)();
+        m_cycles += (this->*m_operations[m_ins].op)();
     }
     ++m_state;
-
-    if(m_state == m_operations[m_ins].cycles + m_extraCycles) { // Check if done with instruction
-        m_state = 0;
-    }
+    --m_cycles;
 }
 
 void Cpu6502::registerBuss(Buss* buss) {
     m_buss = buss;
+}
+
+void Cpu6502::reset() {
+    PC = read(0xFFFC);          // Read low byte of reset vector
+    PC |= read(0xFFFD) << 8;    // Read high byte of reset vector
+
+    SP -= 3;
+    setFlag(Flags::I, true);
+
+    m_state = 0;
+    m_cycles = 7;
 }
 
 uint8_t Cpu6502::read(const uint16_t& address) {

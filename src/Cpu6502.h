@@ -21,6 +21,7 @@ public:
     };
 
 private:
+    void reset();
     uint8_t read(const uint16_t& address);
     void write(const uint16_t& address, const uint8_t& data);
     void push(const uint8_t& data);
@@ -31,7 +32,7 @@ private:
 
 private:
     uint8_t m_ins;
-    uint8_t m_state = 0, m_extraCycles = 0;
+    uint8_t m_state = 0, m_cycles = 0;
     Buss* m_buss;
 
     uint16_t m_operandAddress; // Stores the address to the operand used in
