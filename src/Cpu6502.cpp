@@ -650,27 +650,49 @@ uint8_t Cpu6502::STY() {
     return 0;
 }
 
+// Transfer A to X
 uint8_t Cpu6502::TAX() {
+    X = A;
+    setFlag(Flags::Z, X == 0);
+    setFlag(Flags::N, X & 0x80);
     return 0;
 }
 
+// Transfer A to Y
 uint8_t Cpu6502::TAY() {
+    Y = A;
+    setFlag(Flags::Z, Y == 0);
+    setFlag(Flags::N, Y & 0x80);
     return 0;
 }
 
+// Transfer Stack ptr to X
 uint8_t Cpu6502::TSX() {
+    X = SP;
+    setFlag(Flags::Z, X == 0);
+    setFlag(Flags::N, X & 0x80);
     return 0;
 }
 
+// Transfer X to Accumulator
 uint8_t Cpu6502::TXA() {
+    A = X;
+    setFlag(Flags::Z, A == 0);
+    setFlag(Flags::N, A & 0x80);
     return 0;
 }
 
+// Transfer X to Stack ptr
 uint8_t Cpu6502::TXS() {
+    SP = X;
     return 0;
 }
 
+// Transfer Y to Accumulator
 uint8_t Cpu6502::TYA(){
+    A = Y;
+    setFlag(Flags::Z, Y == 0);
+    setFlag(Flags::N, Y & 0x80);
     return 0;
 }
 
