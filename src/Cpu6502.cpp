@@ -54,7 +54,7 @@ void Cpu6502::reset() {
     SP -= 3;
     setFlag(Flags::I, true);
 
-    m_state = 0;
+    m_state = 2;
     m_cycles = 7;
 }
 
