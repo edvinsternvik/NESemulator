@@ -11,6 +11,7 @@ public:
 
     void clock();
     void registerBuss(Buss* buss);
+    void reset();
 
 public:
     uint8_t A, P, X, Y, SP;
@@ -21,7 +22,6 @@ public:
     };
 
 private:
-    void reset();
     uint8_t read(const uint16_t& address);
     void write(const uint16_t& address, const uint8_t& data);
     void push(const uint8_t& data);

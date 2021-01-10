@@ -26,7 +26,6 @@ Cpu6502::Cpu6502() {
     P = 0x34;
     A = X = Y = 0;
     SP = 0xFD;
-    reset();
 }
 
 void Cpu6502::clock() {
@@ -34,7 +33,8 @@ void Cpu6502::clock() {
         m_ins = read(PC);
         ++PC;
         m_state = 0;
-        m_cycles = (this->*m_operations[m_ins].addressing)();
+        m_cycles = this->m_operations[m_ins].cycles;
+        m_cycles += (this->*m_operations[m_ins].addressing)();
     }
     else if(m_state == 1){ // Execute
         m_cycles += (this->*m_operations[m_ins].op)();
