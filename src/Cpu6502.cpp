@@ -58,6 +58,38 @@ void Cpu6502::reset() {
     m_cycles = 7;
 }
 
+void Cpu6502::interrupt() {
+    if(getFlag(Flags::I)) return;
+
+    push(PC >> 8);
+    push(PC & 0x00FF);
+
+    push(P);
+
+    setFlag(Flags::I, true);
+
+    uint8_t irqHandlerAddrLow = read(0xFFFE);
+    uint8_t irqHandlerAddrHigh = read(0xFFFF);
+    PC = (irqHandlerAddrHigh << 8) | irqHandlerAddrLow;
+
+    m_cycles = 7;
+}
+
+void Cpu6502::nmi() {
+    push(PC >> 8);
+    push(PC & 0x00FF);
+
+    push(P);
+
+    setFlag(Flags::I, true);
+
+    uint8_t irqHandlerAddrLow = read(0xFFFE);
+    uint8_t irqHandlerAddrHigh = read(0xFFFF);
+    PC = (irqHandlerAddrHigh << 8) | irqHandlerAddrLow;
+
+    m_cycles = 7;
+}
+
 uint8_t Cpu6502::read(const uint16_t& address) {
     return m_buss->data[address];
 }
@@ -601,7 +633,13 @@ uint8_t Cpu6502::ROR() {
     return 0;
 }
 
+// ReTurn from Interrupt
 uint8_t Cpu6502::RTI() {
+    P = pull();
+    uint8_t pcLow = pull();
+    uint8_t pcHigh = pull();
+    PC = (pcHigh << 8) | pcLow;
+
     return 0;
 }
 

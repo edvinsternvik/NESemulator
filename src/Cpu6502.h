@@ -12,6 +12,8 @@ public:
     void clock();
     void registerBuss(Buss* buss);
     void reset();
+    void interrupt();
+    void nmi();
 
 public:
     uint8_t A, P, X, Y, SP;
