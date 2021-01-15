@@ -91,11 +91,11 @@ void Cpu6502::nmi() {
 }
 
 uint8_t Cpu6502::read(const uint16_t& address) {
-    return m_buss->data[address];
+    return m_buss->read(address);
 }
 
 void Cpu6502::write(const uint16_t& address, const uint8_t& data) {
-    m_buss->data[address] = data;
+    m_buss->write(address, data);
 }
 
 void Cpu6502::push(const uint8_t& data) {
