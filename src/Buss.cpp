@@ -12,7 +12,7 @@ uint8_t Buss::read(const uint16_t& address) {
     }
     else if(address >= 0x4020 && address <= 0xFFFF) {
         if(m_cartridge.get()) {
-            return m_cartridge->read(address - 0x4020);
+            return m_cartridge->readCPU(address);
         }
     }
     return 0;
@@ -25,7 +25,7 @@ void Buss::write(const uint16_t& address, const uint8_t& data) {
     }
     else if(address >= 0x4020 && address <= 0xFFFF) {
         if(m_cartridge.get()) {
-            m_cartridge->write(address - 0x4020, data);
+            m_cartridge->writeCPU(address, data);
         }
     }
 }
