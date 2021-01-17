@@ -9,8 +9,8 @@ project "NESemulator"
     objdir "bin-int/%{cfg.buildcfg}"
 
     files {
-        "src/*.h",
-        "src/*.cpp",
+        "src/**.h",
+        "src/**.cpp",
     }
     
     filter "configurations:Debug"

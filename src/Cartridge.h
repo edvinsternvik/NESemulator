@@ -1,4 +1,5 @@
 #pragma once
+#include "Mappers/Mapper.h"
 #include <cstdint>
 #include <memory>
 #include <vector>
@@ -15,6 +16,9 @@ public:
 
     uint8_t readPPU(const uint16_t& address);
     void writePPU(const uint16_t& address, const uint8_t& data);
+
+private:
+    bool setMapper(const uint8_t& mapperID, const uint32_t& prgRomSize, const uint32_t& chrRomSize);
 
 private:
     bool m_successfulLoad;

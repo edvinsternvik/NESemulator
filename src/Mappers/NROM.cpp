@@ -1,5 +1,8 @@
 #include "NROM.h"
 
+NROM::NROM(const uint32_t& PRGromSize, const uint32_t& CHRromSize) : Mapper(PRGromSize, CHRromSize) {
+}
+
 bool NROM::mapReadCPU(const uint16_t& address, uint16_t& mappedAddress) {
     if(address < 0x8000) return false;
 
