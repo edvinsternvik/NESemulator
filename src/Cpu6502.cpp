@@ -64,7 +64,7 @@ void Cpu6502::interrupt() {
     push(PC >> 8);
     push(PC & 0x00FF);
 
-    push(P);
+    push(P & 0xEF); // The break bit, which is usually high, is forced low when pushed during an nmi or irq
 
     setFlag(Flags::I, true);
 
@@ -79,7 +79,7 @@ void Cpu6502::nmi() {
     push(PC >> 8);
     push(PC & 0x00FF);
 
-    push(P);
+    push(P & 0xEF); // The break bit, which is usually high, is forced low when pushed during an nmi or irq
 
     setFlag(Flags::I, true);
 
@@ -579,7 +579,7 @@ uint8_t Cpu6502::PHA() {
 
 // PusH Processor status
 uint8_t Cpu6502::PHP() {
-    push(P);
+    push(P | 0x30); // The break bit and the unused bit are set to high when read
     return 0;
 }
 
@@ -592,6 +592,8 @@ uint8_t Cpu6502::PLA() {
 // PuLl Processor status
 uint8_t Cpu6502::PLP() {
     P = pull();
+    P &= 0xEF; // The break flag is cleared
+    P |= 0x20; // The unused flag is set
     return 0;
 }
 
@@ -635,7 +637,7 @@ uint8_t Cpu6502::ROR() {
 
 // ReTurn from Interrupt
 uint8_t Cpu6502::RTI() {
-    P = pull();
+    PLP();
     uint8_t pcLow = pull();
     uint8_t pcHigh = pull();
     PC = (pcHigh << 8) | pcLow;
