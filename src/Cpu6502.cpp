@@ -330,10 +330,11 @@ uint8_t Cpu6502::BEQ() {
 
 // test BITs
 uint8_t Cpu6502::BIT() {
-    uint8_t res = A & getOperand();
+    uint8_t operand = getOperand();
+    uint8_t res = A & operand;
     setFlag(Flags::Z, res == 0);
-    setFlag(Flags::V, res & 0x40);
-    setFlag(Flags::N, res & 0x80);
+    setFlag(Flags::V, operand & 0x40);
+    setFlag(Flags::N, operand & 0x80);
     return 0;
 }
 
