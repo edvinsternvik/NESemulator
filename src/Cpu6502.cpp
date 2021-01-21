@@ -586,6 +586,8 @@ uint8_t Cpu6502::PHP() {
 // PuLl Accumulator
 uint8_t Cpu6502::PLA() {
     A = pull();
+    setFlag(Flags::Z, A == 0);
+    setFlag(Flags::N, A & 0x80);
     return 0;
 }
 
