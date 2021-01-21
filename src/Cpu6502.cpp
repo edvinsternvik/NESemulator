@@ -221,14 +221,15 @@ uint8_t Cpu6502::IDX() {
     return 0;
 }
 
-// Indirect Indexed Addressing / Indirect Y: The second byte of the instruction points, after adding the contents
-//      of the Y register, to the address of the operand. If adding the Y register causes the page (high byte) to change,
-//      an extra cycle is needed.
+// Indirect Indexed Addressing / Indirect Y: The second byte of the instruction points to an address in zero page.
+//      The contents of that address and the contents of the next address in zero page are the low and high byte respectively of
+//      an address. This address is added together with the Y register, if this addition causes a page boundrary to be crossed
+//      another clock cycle is needed.
 uint8_t Cpu6502::IDY() {
     uint16_t addressPtr = read(PC++);
 
     uint8_t low = read(addressPtr); // Set low byte
-    uint8_t high = read(addressPtr + 1); // Set high byte
+    uint8_t high = read((addressPtr + 1) & 0xFF); // Set high byte
 
     m_operandAddress = (high << 8) | low;
     m_operandAddress += Y;
