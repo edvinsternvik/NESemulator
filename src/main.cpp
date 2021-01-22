@@ -1,16 +1,29 @@
 #include <iostream>
 #include "Cpu6502.h"
 #include "Buss.h"
+#include "Cartridge.h"
+#include <iostream>
 
-int main() {
+int main(int argc, const char** argv) {
+    if(argc < 2) {
+        std::cout << "No cartridge specified" << std::endl;
+        return 0;
+    }
+
     Buss buss;
     Cpu6502 cpu;
     cpu.registerBuss(&buss);
-    cpu.PC = 0x0020;
-    buss.data[0x0020] = 0xA9;
-    buss.data[0x0021] = 123;
-    buss.data[0x0022] = 0xA9;
-    buss.data[0x0023] = 88;
+
+    std::shared_ptr<Cartridge> cartridge = std::make_shared<Cartridge>(argv[1]);
+    if(!cartridge->successfulLoad()) {
+        std::cout << "Could not load cartridge" << std::endl;
+        return 0;
+    }
+
+    buss.insertCartridge(cartridge);
+
+    cpu.reset();
+
     while(true) {
         cpu.clock();
     }
