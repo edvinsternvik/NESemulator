@@ -1,5 +1,6 @@
 #pragma once
 #include "Cpu6502.h"
+#include "PPU.h"
 #include "Buss.h"
 #include "Cartridge.h"
 
@@ -13,4 +14,5 @@ public:
 public:
     Buss cpuBuss, ppuBuss;
     Cpu6502 cpu;
+    std::shared_ptr<PPU> ppu;
 };
