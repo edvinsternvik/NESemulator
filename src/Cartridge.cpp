@@ -2,12 +2,13 @@
 #include "Mappers/NROM.h"
 #include <fstream>
 
-#define CARTRIDGE_START 0x4020
+#define CARTRIDGE_START_CPU 0x4020
+#define CARTRIDGE_START_PPU 0x0000
 
 uint8_t PRGrom::read(const uint16_t& address) {
     if(m_mapper.get()) {
         uint16_t mappedAddress;
-        if(m_mapper->mapReadCPU(address + CARTRIDGE_START, mappedAddress)) { // Mappers use absolute address
+        if(m_mapper->mapReadCPU(address + CARTRIDGE_START_CPU, mappedAddress)) { // Mappers use absolute address
             return m_rom[mappedAddress];
         }
     }
@@ -16,7 +17,7 @@ uint8_t PRGrom::read(const uint16_t& address) {
 void PRGrom::write(const uint16_t& address, const uint8_t& data) {
     if(m_mapper.get()) {
         uint16_t mappedAddress;
-        if(m_mapper->mapWriteCPU(address + CARTRIDGE_START, mappedAddress)) { // Mappers use absolute address
+        if(m_mapper->mapWriteCPU(address + CARTRIDGE_START_CPU, mappedAddress)) { // Mappers use absolute address
             m_rom[mappedAddress] = data;
         }
     }
@@ -25,7 +26,7 @@ void PRGrom::write(const uint16_t& address, const uint8_t& data) {
 uint8_t CHRrom::read(const uint16_t& address) {
     if(m_mapper.get()) {
         uint16_t mappedAddress;
-        if(m_mapper->mapReadPPU(address + CARTRIDGE_START, mappedAddress)) { // Mappers use absolute address
+        if(m_mapper->mapReadPPU(address + CARTRIDGE_START_PPU, mappedAddress)) { // Mappers use absolute address
             return m_rom[mappedAddress];
         }
     }
@@ -35,7 +36,7 @@ uint8_t CHRrom::read(const uint16_t& address) {
 void CHRrom::write(const uint16_t& address, const uint8_t& data) {
     if(m_mapper.get()) {
         uint16_t mappedAddress;
-        if(m_mapper->mapWritePPU(address + CARTRIDGE_START, mappedAddress)) { // Mappers use absolute address
+        if(m_mapper->mapWritePPU(address + CARTRIDGE_START_PPU, mappedAddress)) { // Mappers use absolute address
             m_rom[mappedAddress] = data;
         }
     }
