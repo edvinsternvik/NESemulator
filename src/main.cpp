@@ -3,6 +3,7 @@
 #include "Buss.h"
 #include "Cartridge.h"
 #include <iostream>
+#include "Ram.h"
 
 int main(int argc, const char** argv) {
     if(argc < 2) {
@@ -10,9 +11,9 @@ int main(int argc, const char** argv) {
         return 0;
     }
 
-    Buss buss;
+    Buss cpuBuss;
     Cpu6502 cpu;
-    cpu.registerBuss(&buss);
+    cpu.registerBuss(&cpuBuss);
 
     std::shared_ptr<Cartridge> cartridge = std::make_shared<Cartridge>(argv[1]);
     if(!cartridge->successfulLoad()) {
@@ -20,7 +21,9 @@ int main(int argc, const char** argv) {
         return 0;
     }
 
-    buss.insertCartridge(cartridge);
+    cpuBuss.addDevice(std::make_shared<Ram<0x800, 0x2000>>()); // 2kb internal ram
+    cpuBuss.addDevice(std::make_shared<Ram<1, 0x2020>>()); // not implemented
+    cpuBuss.addDevice(cartridge->prgRom);
 
     cpu.reset();
 

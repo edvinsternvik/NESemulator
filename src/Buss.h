@@ -1,17 +1,22 @@
 #pragma once
+#include "BussDevice.h"
 #include <cstdint>
 #include <memory>
-
-class Cartridge;
+#include <vector>
 
 class Buss {
 public:
-    void insertCartridge(std::shared_ptr<Cartridge> cartridge);
+    void addDevice(std::shared_ptr<BussDevice> device);
 
-    uint8_t read(const uint16_t& address);
-    void write(const uint16_t& address, const uint8_t& data);
+    uint8_t read(uint16_t address);
+    void write(uint16_t address, const uint8_t& data);
 
 private:
-    uint8_t m_ram[0x0800];
-    std::shared_ptr<Cartridge> m_cartridge;
+    struct DeviceData {
+        uint16_t startAddress, size;
+        std::shared_ptr<BussDevice> device;
+    };
+
+    std::vector<DeviceData> m_devices;
+    uint32_t m_size = 0;
 };
