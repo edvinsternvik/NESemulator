@@ -5,41 +5,23 @@
 #define CARTRIDGE_START_CPU 0x4020
 #define CARTRIDGE_START_PPU 0x0000
 
-uint8_t PRGrom::read(const uint16_t& address) {
-    if(m_mapper.get()) {
-        uint16_t mappedAddress;
-        if(m_mapper->mapReadCPU(address + CARTRIDGE_START_CPU, mappedAddress)) { // Mappers use absolute address
-            return m_rom[mappedAddress];
-        }
-    }
-    return 0;
+CartridgeCPU::CartridgeCPU(std::shared_ptr<Mapper> mapper) : m_mapper(mapper) {}
+
+uint8_t CartridgeCPU::read(const uint16_t& address) {
+    m_mapper->readCPU(address + CARTRIDGE_START_CPU); // Mappers use absolute address
 }
-void PRGrom::write(const uint16_t& address, const uint8_t& data) {
-    if(m_mapper.get()) {
-        uint16_t mappedAddress;
-        if(m_mapper->mapWriteCPU(address + CARTRIDGE_START_CPU, mappedAddress)) { // Mappers use absolute address
-            m_rom[mappedAddress] = data;
-        }
-    }
+void CartridgeCPU::write(const uint16_t& address, const uint8_t& data) {
+    m_mapper->writeCPU(address + CARTRIDGE_START_CPU, data); // Mappers use absolute address
 }
 
-uint8_t CHRrom::read(const uint16_t& address) {
-    if(m_mapper.get()) {
-        uint16_t mappedAddress;
-        if(m_mapper->mapReadPPU(address + CARTRIDGE_START_PPU, mappedAddress)) { // Mappers use absolute address
-            return m_rom[mappedAddress];
-        }
-    }
-    return 0;
+CartridgePPU::CartridgePPU(std::shared_ptr<Mapper> mapper) : m_mapper(mapper) {}
+
+uint8_t CartridgePPU::read(const uint16_t& address) {
+    m_mapper->readPPU(address + CARTRIDGE_START_PPU); // Mappers use absolute address
 }
 
-void CHRrom::write(const uint16_t& address, const uint8_t& data) {
-    if(m_mapper.get()) {
-        uint16_t mappedAddress;
-        if(m_mapper->mapWritePPU(address + CARTRIDGE_START_PPU, mappedAddress)) { // Mappers use absolute address
-            m_rom[mappedAddress] = data;
-        }
-    }
+void CartridgePPU::write(const uint16_t& address, const uint8_t& data) {
+    m_mapper->writePPU(address + CARTRIDGE_START_PPU, data); // Mappers use absolute address
 }
 
 
@@ -56,9 +38,6 @@ Cartridge::Cartridge(const char* filepath) {
         uint8_t padding[5];
     };
     iNESheader header;
-
-    prgRom = std::make_shared<PRGrom>();
-    chrRom = std::make_shared<CHRrom>();
 
     m_successfulLoad = false;
     std::ifstream file(filepath, std::ios::in | std::ios::binary);
@@ -78,14 +57,13 @@ Cartridge::Cartridge(const char* filepath) {
 
     uint32_t prgRomSize = header.prgRomChunks * 0x4000; // Each chunk is 16 KiB
     uint32_t chrRomSize = header.chrRomChunks * 0x2000; // Each chunk is 8 KiB
-    prgRom->m_rom.reserve(prgRomSize);
-    chrRom->m_rom.reserve(chrRomSize);
 
     uint8_t mapperID = 0;
     mapperID |= header.flags6 >> 4;
     mapperID |= header.flags7 & 0xF0;
 
-    if(!setMapper(mapperID, prgRomSize, chrRomSize)) {
+    std::shared_ptr<Mapper> mapper = getMapper(mapperID, prgRomSize, chrRomSize);
+    if(mapper.get() == nullptr) {
         file.close();
         return; // Return if the mapper isn't supported
     }
@@ -95,8 +73,10 @@ Cartridge::Cartridge(const char* filepath) {
         file.seekg(512, std::ios_base::cur);
     }
 
-    file.read((char*)prgRom->m_rom.data(), prgRomSize);
-    file.read((char*)chrRom->m_rom.data(), chrRomSize);
+    cartridgeCPU = std::make_shared<CartridgeCPU>(mapper);
+    cartridgePPU = std::make_shared<CartridgePPU>(mapper);
+    file.read((char*)mapper->getPrgRomDataPtr(), prgRomSize);
+    file.read((char*)mapper->getChrRomDataPtr(), chrRomSize);
     file.close();
 
     m_successfulLoad = true;
@@ -106,18 +86,10 @@ bool Cartridge::successfulLoad() {
     return m_successfulLoad;
 }
 
-bool Cartridge::setMapper(const uint8_t& mapperID, const uint32_t& prgRomSize, const uint32_t& chrRomSize) {
+std::shared_ptr<Mapper> Cartridge::getMapper(const uint8_t& mapperID, const uint32_t& prgRomSize, const uint32_t& chrRomSize) {
     std::shared_ptr<Mapper> mapper;
     switch(mapperID) {
-    case 0:
-        mapper = std::make_unique<NROM>(prgRomSize, chrRomSize);
-        break;
-    default:
-        return false;
+    case 0: return std::make_unique<NROM>(prgRomSize, chrRomSize);
     }
-
-    prgRom->m_mapper = mapper;
-    chrRom->m_mapper = mapper;
-
-    return true;
+    return std::shared_ptr<Mapper>();
 }

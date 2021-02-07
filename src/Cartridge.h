@@ -7,8 +7,9 @@
 
 class Mapper;
 
-class PRGrom : public BussDevice {
+class CartridgeCPU : public BussDevice {
 public:
+    CartridgeCPU(std::shared_ptr<Mapper> mapper);
     virtual uint8_t read(const uint16_t& address) override;
     virtual void write(const uint16_t& address, const uint8_t& data) override;
     virtual uint16_t getSize() override {
@@ -16,25 +17,20 @@ public:
     }
 
 private:
-    std::vector<uint8_t> m_rom;
     std::shared_ptr<Mapper> m_mapper;
-
-    friend class Cartridge;
 };
 
-class CHRrom : public BussDevice {
+class CartridgePPU : public BussDevice {
 public:
+    CartridgePPU(std::shared_ptr<Mapper> mapper);
     virtual uint8_t read(const uint16_t& address) override;
     virtual void write(const uint16_t& address, const uint8_t& data) override;
     virtual uint16_t getSize() override {
-        return 0xBFE0;  // Size of entire cartridge space
+        return 0x2000;
     }
 
 private:
-    std::vector<uint8_t> m_rom;
     std::shared_ptr<Mapper> m_mapper;
-
-    friend class Cartridge;
 };
 
 class Cartridge {
@@ -44,11 +40,11 @@ public:
     bool successfulLoad();
 
 private:
-    bool setMapper(const uint8_t& mapperID, const uint32_t& prgRomSize, const uint32_t& chrRomSize);
+    std::shared_ptr<Mapper> getMapper(const uint8_t& mapperID, const uint32_t& prgRomSize, const uint32_t& chrRomSize);
 
 public:
-    std::shared_ptr<PRGrom> prgRom;
-    std::shared_ptr<CHRrom> chrRom;
+    std::shared_ptr<CartridgeCPU> cartridgeCPU;
+    std::shared_ptr<CartridgePPU> cartridgePPU;
     
 private:
     bool m_successfulLoad;

@@ -5,9 +5,9 @@ class NROM : public Mapper {
 public:
     NROM(const uint32_t& PRGromSize, const uint32_t& CHRromSize);
 
-    virtual bool mapReadCPU(const uint16_t& address, uint16_t& mappedAddress) override;
-    virtual bool mapWriteCPU(const uint16_t& address, uint16_t& mappedAddress) override;
+    virtual uint8_t readCPU(const uint16_t& address) override;
+    virtual void writeCPU(const uint16_t& address, const uint8_t& data) override;
 
-    virtual bool mapReadPPU(const uint16_t& address, uint16_t& mappedAddress) override;
-    virtual bool mapWritePPU(const uint16_t& address, uint16_t& mappedAddress) override;
+    virtual uint8_t readPPU(const uint16_t& address) override;
+    virtual void writePPU(const uint16_t& address, const uint8_t& data) override;
 };

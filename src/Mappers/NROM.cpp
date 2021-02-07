@@ -1,31 +1,29 @@
 #include "NROM.h"
+#include "../Cartridge.h"
 
 NROM::NROM(const uint32_t& PRGromSize, const uint32_t& CHRromSize) : Mapper(PRGromSize, CHRromSize) {
 }
 
-bool NROM::mapReadCPU(const uint16_t& address, uint16_t& mappedAddress) {
-    if(address < 0x8000) return false;
+uint8_t NROM::readCPU(const uint16_t& address) {
+    if(address < 0x8000) return 0;
 
-    if(m_PRGromSize == 0x4000) {
-        mappedAddress = address & 0x3FFF; // Mirror $8000-$BFFF to $C000-$FFFF
+    else if(m_PRGromSize == 0x4000) {
+        return m_prgRom[address & 0x3FFF]; // Mirror $8000-$BFFF to $C000-$FFFF
     }
     else {
-        mappedAddress = address & 0x7FFF;
+        return m_prgRom[address & 0x7FFF];
     }
-    return true;
 }
 
-bool NROM::mapWriteCPU(const uint16_t& address, uint16_t& mappedAddress) {
-    return false;
+void NROM::writeCPU(const uint16_t& address, const uint8_t& data) {
 }
 
-bool NROM::mapReadPPU(const uint16_t& address, uint16_t& mappedAddress) {
-    if(address >= 0x2000) return false;
+uint8_t NROM::readPPU(const uint16_t& address) {
+    if(address >= 0x2000) return 0;
 
-    mappedAddress = address;
-    return true;
+    return m_chrRom[address];
 }
 
-bool NROM::mapWritePPU(const uint16_t& address, uint16_t& mappedAddress) {
-    return false;
+void NROM::writePPU(const uint16_t& address, const uint8_t& data) {
+    
 }
