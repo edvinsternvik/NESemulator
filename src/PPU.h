@@ -3,11 +3,17 @@
 #include <cstdint>
 #include <memory>
 
+class Buss;
+
 class PPU {
 public:
-    
+    void registerBuss(Buss* buss);
+
 public:
-    uint8_t registers[8];
+    uint8_t registers[8] = {};
+
+private:
+    Buss* m_buss;
 };
 
 class PPUregisters : public BussDevice {
