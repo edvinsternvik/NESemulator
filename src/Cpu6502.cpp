@@ -29,11 +29,21 @@ Cpu6502::Cpu6502() {
 
 void Cpu6502::clock() {
     if(m_cycles == 0) { // Fetch
-        m_ins = read(PC);
-        ++PC;
         m_state = 0;
-        m_cycles = this->m_operations[m_ins].cycles;
-        m_cycles += (this->*m_operations[m_ins].addressing)();
+        if(nmiPin) {
+            nmiPin = false;
+            nmi();
+        }
+        else if(irqPin) {
+            irqPin = false;
+            interrupt();
+        }
+        else {
+            m_ins = read(PC);
+            ++PC;
+            m_cycles = this->m_operations[m_ins].cycles;
+            m_cycles += (this->*m_operations[m_ins].addressing)();
+        }
     }
     else if(m_state == 1){ // Execute
         m_cycles += (this->*m_operations[m_ins].op)();

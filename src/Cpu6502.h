@@ -12,8 +12,6 @@ public:
     void clock();
     void registerBuss(Buss* buss);
     void reset();
-    void interrupt();
-    void nmi();
 
 public:
     uint8_t A, P, X, Y, SP;
@@ -23,7 +21,12 @@ public:
         C = 0, Z = 1, I = 2, D = 3, B = 4, V = 6, N = 7
     };
 
+    bool nmiPin = false;
+    bool irqPin = false;
+
 private:
+    void interrupt();
+    void nmi();
     uint8_t read(const uint16_t& address);
     void write(const uint16_t& address, const uint8_t& data);
     void push(const uint8_t& data);
