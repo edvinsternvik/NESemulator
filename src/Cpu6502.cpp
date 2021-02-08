@@ -67,8 +67,8 @@ void Cpu6502::interrupt() {
 
     setFlag(Flags::I, true);
 
-    uint8_t irqHandlerAddrLow = read(0xFFFE);
-    uint8_t irqHandlerAddrHigh = read(0xFFFF);
+    uint16_t irqHandlerAddrLow = read(0xFFFE);
+    uint16_t irqHandlerAddrHigh = read(0xFFFF);
     PC = (irqHandlerAddrHigh << 8) | irqHandlerAddrLow;
 
     m_cycles = 7;
@@ -82,8 +82,8 @@ void Cpu6502::nmi() {
 
     setFlag(Flags::I, true);
 
-    uint8_t irqHandlerAddrLow = read(0xFFFE);
-    uint8_t irqHandlerAddrHigh = read(0xFFFF);
+    uint16_t irqHandlerAddrLow = read(0xFFFA);
+    uint16_t irqHandlerAddrHigh = read(0xFFFB);
     PC = (irqHandlerAddrHigh << 8) | irqHandlerAddrLow;
 
     m_cycles = 7;
