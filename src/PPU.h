@@ -16,6 +16,12 @@ public:
 private:
     uint8_t read(const uint16_t& address);
     void write(const uint16_t& address, const uint8_t& data);
+
+    uint8_t fetchNametableByte();
+    void fetchPatternTableTile(uint8_t nametableByte);
+    uint8_t fetchNextPixel();
+    void incVramAddrVertical();
+    void setPixel(uint8_t pixelValue);
     
 public:
     uint32_t windowBuffer[256*240];
@@ -59,19 +65,31 @@ private:
         uint8_t reg;
     } PPUstatus;
 
+    union VramAddress {
+        struct {
+            uint16_t coarseX : 5;
+            uint16_t coarseY : 5;
+            uint16_t nametable : 2;
+            uint16_t fineY : 3;
+            uint16_t unused : 1;
+        };
+        uint16_t vramAddr;
+    };
+    VramAddress m_vramAddress;
+    VramAddress m_tvramAddress;
+
     uint16_t m_scanline;
     uint16_t m_cycle;
 
-    uint16_t m_vramAddress;
-    uint16_t m_tvramAddress;
 
     // Shift registers
-    uint16_t m_patternTableData;
+    uint16_t m_pTableDataLow;
+    uint16_t m_pTableDataHigh;
     uint8_t m_paletteAttrData;
 
-    uint16_t m_nametableOffset;
     uint32_t m_pixelOffset;
     bool m_nmi;
+    bool m_oddFrame;
 
     Buss* m_buss;
 
