@@ -28,8 +28,8 @@ public:
     bool frameDone = false;
 
 private:
-    union {
-        struct {
+    union PPUctrl {
+        struct Layout {
             uint8_t nametableAddr : 2;
             uint8_t vramInc : 1;
             uint8_t spritePatternAddr : 1;
@@ -38,11 +38,12 @@ private:
             uint8_t masterSlave : 1;
             uint8_t genNMI : 1;
         };
+        Layout layout;
         uint8_t reg;
-    } PPUctrl;
+    };
 
-    union {
-        struct {
+    union PPUmask {
+        struct Layout {
             uint8_t greyscale : 1;
             uint8_t showBgLeft : 1;
             uint8_t showSprLeft : 1;
@@ -52,27 +53,34 @@ private:
             uint8_t emphasizeGreen : 1;
             uint8_t emphasizeBlue : 1;
         };
+        Layout layout;
         uint8_t reg;
-    } PPUmask;
+    };
 
-    union {
-        struct {
+    union PPUstatus {
+        struct Layout {
             uint8_t unused : 5;
             uint8_t spriteOveflow : 1;
             uint8_t spriteZeroHit : 1;
             uint8_t verticalBlank : 1;
         };
+        Layout layout;
         uint8_t reg;
-    } PPUstatus;
+    };
+
+    PPUctrl m_ppuCtrl;
+    PPUmask m_ppuMask;
+    PPUstatus m_ppuStatus;
 
     union VramAddress {
-        struct {
+        struct Layout {
             uint16_t coarseX : 5;
             uint16_t coarseY : 5;
             uint16_t nametable : 2;
             uint16_t fineY : 3;
             uint16_t unused : 1;
         };
+        Layout layout;
         uint16_t vramAddr;
     };
     VramAddress m_vramAddress;
