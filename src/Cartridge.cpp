@@ -10,6 +10,7 @@ CartridgeCPU::CartridgeCPU(std::shared_ptr<Mapper> mapper) : m_mapper(mapper) {}
 uint8_t CartridgeCPU::read(const uint16_t& address) {
     return m_mapper->readCPU(address + CARTRIDGE_START_CPU); // Mappers use absolute address
 }
+
 void CartridgeCPU::write(const uint16_t& address, const uint8_t& data) {
     m_mapper->writeCPU(address + CARTRIDGE_START_CPU, data); // Mappers use absolute address
 }

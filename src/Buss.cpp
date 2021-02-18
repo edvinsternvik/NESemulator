@@ -19,7 +19,7 @@ void Buss::changeDevice(unsigned int index, std::shared_ptr<BussDevice> device) 
 
     // Update the other devices start address
     m_nextStartAddress = m_devices[index].startAddress + m_devices[index].size;
-    for(int i = index + 1; i < m_devices.size(); ++i) {
+    for(long unsigned int i = index + 1; i < m_devices.size(); ++i) {
         m_devices[i].startAddress = m_nextStartAddress;
         m_nextStartAddress += m_devices[i].size;
     }
