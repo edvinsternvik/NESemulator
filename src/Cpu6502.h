@@ -18,9 +18,9 @@ public:
     uint16_t PC;
 
     enum Flags {
-        C = 0, Z = 1, I = 2, D = 3, B = 4, V = 6, N = 7
+        C = 0, Z = 1, I = 2, D = 3, B = 4, U = 5, V = 6, N = 7
     };
-
+    
     bool nmiPin = false;
     bool irqPin = false;
 

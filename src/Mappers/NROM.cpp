@@ -19,11 +19,10 @@ void NROM::writeCPU(const uint16_t& address, const uint8_t& data) {
 }
 
 uint8_t NROM::readPPU(const uint16_t& address) {
-    if(address >= 0x2000) return 0;
+    if(address >= m_CHRromSize) return 0;
 
     return m_chrRom[address];
 }
 
 void NROM::writePPU(const uint16_t& address, const uint8_t& data) {
-    
 }

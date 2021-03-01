@@ -34,7 +34,7 @@ void Cpu6502::clock() {
             nmiPin = false;
             nmi();
         }
-        else if(irqPin) {
+        else if(irqPin && !getFlag(Flags::I)) {
             irqPin = false;
             interrupt();
         }
@@ -43,10 +43,9 @@ void Cpu6502::clock() {
             ++PC;
             m_cycles = this->m_operations[m_ins].cycles;
             m_cycles += (this->*m_operations[m_ins].addressing)();
+
+            m_cycles += (this->*m_operations[m_ins].op)(); // execute
         }
-    }
-    else if(m_state == 1){ // Execute
-        m_cycles += (this->*m_operations[m_ins].op)();
     }
     ++m_state;
     --m_cycles;
@@ -62,20 +61,22 @@ void Cpu6502::reset() {
 
     SP -= 3;
     setFlag(Flags::I, true);
+    setFlag(Flags::U, true);
 
     m_state = 2;
     m_cycles = 7;
 }
 
 void Cpu6502::interrupt() {
-    if(getFlag(Flags::I)) return;
-
-    push(PC >> 8);
+    push((PC >> 8) & 0x00FF);
     push(PC & 0x00FF);
 
-    push(P & 0xEF); // The break bit, which is usually high, is forced low when pushed during an nmi or irq
+    // The break bit, which is usually pushed high, is forced low when pushed during an nmi or irq
+    setFlag(Flags::B, 0);
+    setFlag(Flags::U, 1);
+    push(P);
+    setFlag(Flags::I, 1);
 
-    setFlag(Flags::I, true);
 
     uint16_t irqHandlerAddrLow = read(0xFFFE);
     uint16_t irqHandlerAddrHigh = read(0xFFFF);
@@ -85,12 +86,14 @@ void Cpu6502::interrupt() {
 }
 
 void Cpu6502::nmi() {
-    push(PC >> 8);
+    push((PC >> 8) & 0x00FF);
     push(PC & 0x00FF);
 
-    push(P & 0xEF); // The break bit, which is usually high, is forced low when pushed during an nmi or irq
-
-    setFlag(Flags::I, true);
+    // The break bit, which is usually pushed high, is forced low when pushed during an nmi or irq
+    setFlag(Flags::B, 0);
+    setFlag(Flags::U, 1);
+    push(P);
+    setFlag(Flags::I, 1);
 
     uint16_t irqHandlerAddrLow = read(0xFFFA);
     uint16_t irqHandlerAddrHigh = read(0xFFFB);
@@ -122,12 +125,12 @@ uint8_t Cpu6502::getOperand() {
 }
 
 uint8_t Cpu6502::getFlag(const Flags& flag) {
-    return P & (1 << flag);
+    return (P & (1 << flag)) >> flag;
 }
 
 void Cpu6502::setFlag(const Flags& flag, const bool& value) {
     if(value) P = P | (1 << flag);
-    else      P = P & ((1 << flag) ^ 0xFF);
+    else      P = P & ~(1 << flag);
 }
 
 // ---------------------------------------------------------------------------------------
@@ -605,8 +608,8 @@ uint8_t Cpu6502::PLA() {
 // PuLl Processor status
 uint8_t Cpu6502::PLP() {
     P = pull();
-    P &= 0xEF; // The break flag is cleared
-    P |= 0x20; // The unused flag is set
+    setFlag(Flags::U, true);
+    setFlag(Flags::B, false);
     return 0;
 }
 
