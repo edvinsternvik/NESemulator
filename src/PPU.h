@@ -18,10 +18,16 @@ private:
     void write(const uint16_t& address, const uint8_t& data);
 
     uint8_t fetchNametableByte();
+    void fetchAttributeData();
     void fetchPatternTableTile(uint8_t nametableByte);
+    void updateShiftRegisters();
     uint8_t fetchNextPixel();
     void incVramAddrVertical();
-    void setPixel(uint8_t pixelValue);
+    void incVramAddrHorizontal();
+    void transferVramAddrVertical();
+    void transferVramAddrHorizontal();
+    void setPixel(uint8_t pixelValue, uint32_t pixelOffset, uint8_t tileX, uint8_t tileY, uint8_t attributeData);
+    uint8_t getPalette(uint8_t tileX, uint8_t tileY, uint8_t attributeData);
     
 public:
     uint32_t windowBuffer[256*240];
@@ -30,7 +36,8 @@ public:
 private:
     union PPUctrl {
         struct Layout {
-            uint8_t nametableAddr : 2;
+            uint8_t nametableAddrX : 1;
+            uint8_t nametableAddrY : 1;
             uint8_t vramInc : 1;
             uint8_t spritePatternAddr : 1;
             uint8_t bgPatternTableAddr : 1;
@@ -48,7 +55,7 @@ private:
             uint8_t showBgLeft : 1;
             uint8_t showSprLeft : 1;
             uint8_t showBg : 1;
-            uint8_t ShowSpr : 1;
+            uint8_t showSpr : 1;
             uint8_t emphasizeRed : 1;
             uint8_t emphasizeGreen : 1;
             uint8_t emphasizeBlue : 1;
@@ -76,7 +83,8 @@ private:
         struct Layout {
             uint16_t coarseX : 5;
             uint16_t coarseY : 5;
-            uint16_t nametable : 2;
+            uint16_t nametableX : 1;
+            uint16_t nametableY : 1;
             uint16_t fineY : 3;
             uint16_t unused : 1;
         };
@@ -89,17 +97,23 @@ private:
     uint16_t m_scanline;
     uint16_t m_cycle;
 
-
     // Shift registers
     uint16_t m_pTableDataLow;
     uint16_t m_pTableDataHigh;
-    uint8_t m_paletteAttrData;
+    uint8_t m_pAttrData1;
+    uint8_t m_pAttrData2;
 
-    uint32_t m_pixelOffset;
     bool m_nmi;
     bool m_oddFrame;
+    uint32_t m_pixelOffset;
 
     Buss* m_buss;
+
+    struct Colour {
+        Colour(uint8_t r, uint8_t g, uint8_t b) : r(r), g(g), b(b) {}
+        uint8_t r, g, b;
+    };
+    const Colour m_palette[16*4];
 
     friend class PPUregisters;
 };
