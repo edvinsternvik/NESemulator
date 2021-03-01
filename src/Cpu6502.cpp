@@ -379,6 +379,21 @@ uint8_t Cpu6502::BPL() {
 }
 
 uint8_t Cpu6502::BRK() {
+    PC++;
+
+    push((PC >> 8) & 0x00FF);
+    push(PC & 0x00FF);
+
+    setFlag(Flags::B, 1);
+    setFlag(Flags::U, 1);
+    push(P); // The break bit bit is set to high when read
+    setFlag(Flags::B, 0);
+    setFlag(Flags::I, 1);
+
+    uint16_t irqHandlerAddrLow = read(0xFFFE);
+    uint16_t irqHandlerAddrHigh = read(0xFFFF);
+    PC = (irqHandlerAddrHigh << 8) | irqHandlerAddrLow;
+
     return 0;
 }
 
