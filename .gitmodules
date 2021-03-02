@@ -1,0 +1,3 @@
+[submodule "vendor/GraphicsLibrary"]
+	path = vendor/GraphicsLibrary
+	url = https://github.com/RedE01/GraphicsLibrary

@@ -1,6 +1,8 @@
 workspace "NESemulator"
     configurations { "Debug", "Release" }
 
+include "vendor/GraphicsLibrary"
+
 project "NESemulator"
     kind "ConsoleApp"
     language "C++"
@@ -12,6 +14,17 @@ project "NESemulator"
         "src/**.h",
         "src/**.cpp",
     }
+
+    includedirs {
+        "vendor/GraphicsLibrary/include"
+    }
+
+    links {
+        "GraphicsLibrary"
+    }
+
+    filter "system:linux"
+        links { "X11"}
     
     filter "configurations:Debug"
 		defines "RNES_DEBUG"
