@@ -12,9 +12,6 @@ public:
     CartridgeCPU(std::shared_ptr<Mapper> mapper);
     virtual uint8_t read(const uint16_t& address) override;
     virtual void write(const uint16_t& address, const uint8_t& data) override;
-    virtual uint16_t getSize() override {
-        return 0xBFE0;  // Size of entire cartridge space
-    }
 
 private:
     std::shared_ptr<Mapper> m_mapper;
@@ -25,9 +22,6 @@ public:
     CartridgePPU(std::shared_ptr<Mapper> mapper);
     virtual uint8_t read(const uint16_t& address) override;
     virtual void write(const uint16_t& address, const uint8_t& data) override;
-    virtual uint16_t getSize() override {
-        return 0x2000;
-    }
 
 private:
     std::shared_ptr<Mapper> m_mapper;

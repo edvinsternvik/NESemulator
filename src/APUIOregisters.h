@@ -39,8 +39,6 @@ public:
         }
     }
 
-    virtual uint16_t getSize() override { return 0x18; }
-
     void connectController(std::shared_ptr<Controller> controller, bool isController1);
     Controller* getController1() { return m_controller1.get(); }
     Controller* getController2() { return m_controller2.get(); }

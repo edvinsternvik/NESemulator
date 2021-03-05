@@ -125,8 +125,6 @@ public:
     virtual uint8_t read(const uint16_t& address) override;
     virtual void write(const uint16_t& address, const uint8_t& data) override;
 
-    virtual uint16_t getSize() override { return 0x2000; }
-
 private:
     std::shared_ptr<PPU> m_ppu;
     bool m_addressLatch = false;

@@ -6,18 +6,22 @@
 NES::NES() {
     ppu = std::make_shared<PPU>();
     m_apuioregisters = std::make_shared<APUIOregisters>();
+    
+    std::shared_ptr<PPUregisters> ppuRegisters = std::make_shared<PPUregisters>(ppu);
 
     cpu.registerBuss(&cpuBuss);
-    cpuBuss.addDevice(std::make_shared<Ram<0x800, 0x2000>>()); // 2kb internal ram
-    cpuBuss.addDevice(std::make_shared<PPUregisters>(ppu)); // 8 bytes of exposed ppu registers, mirrored from $2000-@3FFF
-    cpuBuss.addDevice(m_apuioregisters); // APU and IO registers
-    cpuBuss.addDevice(std::make_shared<Ram<1, 0x8>>()); // Disabled
-    cpuBuss.addDevice(std::make_shared<Ram<1, 0xBFE0>>()); // Temporary placeholder for CartridgeCPU
+    cpuBuss.addDevice(std::make_shared<Ram<0x800>>(), 0, 0x2000);
+    cpuBuss.addDevice(ppuRegisters, 0x2000, 0x2000); // Mirrored every 8 bytes
+    cpuBuss.addDevice(m_apuioregisters, 0x4000, 0x18);
+    cpuBuss.addDevice(std::make_shared<Ram<0x1>>(), 0x4018, 0x8); // Disabled
+    cpuBuss.addDevice(std::make_shared<Ram<0x1>>(), 0x4020, 0xBFE0); // Temporary placeholder for CartridgeCPU
+
 
     ppu->registerBuss(&ppuBuss);
-    ppuBuss.addDevice(std::make_shared<Ram<1, 0x2000>>()); // Temporary placeholder for CartridgePPU
-    ppuBuss.addDevice(std::make_shared<Ram<0x0800, 0x1F00>>()); // Nametable + Mirrors
-    ppuBuss.addDevice(std::make_shared<Ram<0x0020, 0x00E0>>()); // Palette RAM indexes + mirrors
+    ppuBuss.addDevice(std::make_shared<Ram<1>>(), 0, 0x2000);
+    ppuBuss.addDevice(std::make_shared<Ram<0x0800>>(), 0x2000, 0x1F00); // Nametable + Mirrors
+    ppuBuss.addDevice(std::make_shared<Ram<0x0020>>(), 0x3F00, 0x100); // Palette RAM indexes + mirrors
+    
 }
 
 void NES::reset() {
@@ -25,8 +29,8 @@ void NES::reset() {
 }
 
 void NES::loadCartridge(std::shared_ptr<Cartridge> cartridge) {
-    cpuBuss.changeDevice(cpuBuss.getNumberOfDevices() - 1, cartridge->cartridgeCPU);
-    ppuBuss.changeDevice(0, cartridge->cartridgePPU);
+    cpuBuss.changeDevice(cpuBuss.getNumberOfDevices() - 1, cartridge->cartridgeCPU, 0x4020, 0xBFE0);
+    ppuBuss.changeDevice(0, cartridge->cartridgePPU, 0, 0x2000);
 }
 
 void NES::connectController1(std::shared_ptr<Controller> controller) {

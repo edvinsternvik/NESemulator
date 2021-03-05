@@ -6,8 +6,8 @@
 
 class Buss {
 public:
-    void addDevice(std::shared_ptr<BussDevice> device);
-    void changeDevice(unsigned int index, std::shared_ptr<BussDevice> device);
+    void addDevice(std::shared_ptr<BussDevice> device, uint16_t startAddr, uint16_t size);
+    void changeDevice(unsigned int index, std::shared_ptr<BussDevice> device, uint16_t startAddr, uint16_t size);
 
     int getNumberOfDevices() const;
 
@@ -16,10 +16,10 @@ public:
 
 private:
     struct DeviceData {
-        uint16_t startAddress, size;
+        uint32_t startAddress, endAddress;
         std::shared_ptr<BussDevice> device;
     };
 
     std::vector<DeviceData> m_devices;
-    uint32_t m_nextStartAddress = 0;
+    uint32_t m_bussSize = 0;
 };
