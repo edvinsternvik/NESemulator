@@ -12,6 +12,10 @@ public:
     void clock();
     void registerBuss(Buss* buss);
     void reset();
+    void suspend(uint32_t cycles);
+    uint32_t getCycle();
+    uint8_t read(const uint16_t& address);
+    void write(const uint16_t& address, const uint8_t& data);
 
 public:
     uint8_t A, P, X, Y, SP;
@@ -27,8 +31,6 @@ public:
 private:
     void interrupt();
     void nmi();
-    uint8_t read(const uint16_t& address);
-    void write(const uint16_t& address, const uint8_t& data);
     void push(const uint8_t& data);
     uint8_t pull();
     uint8_t getOperand();
@@ -37,7 +39,7 @@ private:
 
 private:
     uint8_t m_ins;
-    uint8_t m_state = 0, m_cycles = 0;
+    uint32_t m_cycles = 0;
     Buss* m_buss;
 
     uint16_t m_operandAddress; // Stores the address to the operand used in

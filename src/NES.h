@@ -21,7 +21,7 @@ public:
 
 public:
     Buss cpuBuss, ppuBuss;
-    Cpu6502 cpu;
+    std::shared_ptr<Cpu6502> cpu;
     std::shared_ptr<PPU> ppu;
 
 private:

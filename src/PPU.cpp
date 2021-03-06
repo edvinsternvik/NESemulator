@@ -1,5 +1,6 @@
 #include "PPU.h"
 #include "Buss.h"
+#include "Cpu6502.h"
 
 #define C Colour
 PPU::PPU()
@@ -327,5 +328,20 @@ void PPUregisters::write(const uint16_t& address, const uint8_t& data) {
         if(m_ppu->m_ppuCtrl.layout.vramInc) m_ppu->m_vramAddress.vramAddr += 32;
         else m_ppu->m_vramAddress.vramAddr += 1;
         break;
+    }
+}
+
+uint8_t OAMDMA::read(const uint16_t& address) {
+    return 0;
+}
+
+void OAMDMA::write(const uint16_t& address, const uint8_t& data) {
+    uint32_t cycles = (m_cpu->getCycle() % 2 == 0) ? 513 : 512;
+    m_cpu->suspend(cycles);
+
+    uint16_t pageAddr = ((uint16_t)data) << 8;
+    for(int i = 0; i < 256; ++i) {
+        uint8_t oamByte = m_cpu->read(pageAddr + i);
+        m_ppu->m_oam[i] = oamByte;
     }
 }

@@ -18,13 +18,13 @@ public:
 
     virtual void onUpdate() override {
         while(true) {
-            nes.cpu.clock();
+            nes.cpu->clock();
             for(int i = 0; i < 3; ++i) {
                 nes.ppu->clock();
             }
 
             if(nes.ppu->nmi()) {
-                nes.cpu.nmiPin = true;
+                nes.cpu->nmiPin = true;
             }
 
             if(nes.ppu->frameDone) {
@@ -32,7 +32,6 @@ public:
                 break;
             }
         }
-
 
         renderFrame();
 

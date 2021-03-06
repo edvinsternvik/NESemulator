@@ -29,7 +29,6 @@ Cpu6502::Cpu6502() {
 
 void Cpu6502::clock() {
     if(m_cycles == 0) { // Fetch
-        m_state = 0;
         if(nmiPin) {
             nmiPin = false;
             nmi();
@@ -47,7 +46,6 @@ void Cpu6502::clock() {
             m_cycles += (this->*m_operations[m_ins].op)(); // execute
         }
     }
-    ++m_state;
     --m_cycles;
 }
 
@@ -63,8 +61,23 @@ void Cpu6502::reset() {
     setFlag(Flags::I, true);
     setFlag(Flags::U, true);
 
-    m_state = 2;
     m_cycles = 7;
+}
+
+void Cpu6502::suspend(uint32_t cycles) {
+    m_cycles += cycles;
+}
+
+uint32_t Cpu6502::getCycle() {
+    return m_cycles;
+}
+
+uint8_t Cpu6502::read(const uint16_t& address) {
+    return m_buss->read(address);
+}
+
+void Cpu6502::write(const uint16_t& address, const uint8_t& data) {
+    m_buss->write(address, data);
 }
 
 void Cpu6502::interrupt() {
@@ -102,13 +115,6 @@ void Cpu6502::nmi() {
     m_cycles = 7;
 }
 
-uint8_t Cpu6502::read(const uint16_t& address) {
-    return m_buss->read(address);
-}
-
-void Cpu6502::write(const uint16_t& address, const uint8_t& data) {
-    m_buss->write(address, data);
-}
 
 void Cpu6502::push(const uint8_t& data) {
     write(0x0100 | (uint16_t)SP, data);

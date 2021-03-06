@@ -4,15 +4,15 @@
 #include "Controller.h"
 
 NES::NES() {
+    cpu = std::make_shared<Cpu6502>();
     ppu = std::make_shared<PPU>();
     m_apuioregisters = std::make_shared<APUIOregisters>();
-    
-    std::shared_ptr<PPUregisters> ppuRegisters = std::make_shared<PPUregisters>(ppu);
 
-    cpu.registerBuss(&cpuBuss);
+    cpu->registerBuss(&cpuBuss);
     cpuBuss.addDevice(std::make_shared<Ram<0x800>>(), 0, 0x2000);
-    cpuBuss.addDevice(ppuRegisters, 0x2000, 0x2000); // Mirrored every 8 bytes
-    cpuBuss.addDevice(m_apuioregisters, 0x4000, 0x18);
+    cpuBuss.addDevice(std::make_shared<PPUregisters>(ppu), 0x2000, 0x2000); // Mirrored every 8 bytes
+    cpuBuss.addDevice(std::make_shared<OAMDMA>(ppu, cpu), 0x4014, 0x1);
+    cpuBuss.addDevice(m_apuioregisters, 0x4000, 0x18); // $4000 - $4018, excluding 0x4014 which will be habdled by OAMDMA
     cpuBuss.addDevice(std::make_shared<Ram<0x1>>(), 0x4018, 0x8); // Disabled
     cpuBuss.addDevice(std::make_shared<Ram<0x1>>(), 0x4020, 0xBFE0); // Temporary placeholder for CartridgeCPU
 
@@ -25,7 +25,7 @@ NES::NES() {
 }
 
 void NES::reset() {
-    cpu.reset();
+    cpu->reset();
 }
 
 void NES::loadCartridge(std::shared_ptr<Cartridge> cartridge) {

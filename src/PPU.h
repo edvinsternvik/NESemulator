@@ -94,6 +94,8 @@ private:
     VramAddress m_vramAddress;
     VramAddress m_tvramAddress;
 
+    uint8_t m_oam[64 * 4];
+
     uint16_t m_scanline;
     uint16_t m_cycle;
 
@@ -116,6 +118,7 @@ private:
     const Colour m_palette[16*4];
 
     friend class PPUregisters;
+    friend class OAMDMA;
 };
 
 class PPUregisters : public BussDevice {
@@ -129,4 +132,18 @@ private:
     std::shared_ptr<PPU> m_ppu;
     bool m_addressLatch = false;
     uint8_t m_dataBuffer;
+};
+
+class Cpu6502;
+
+class OAMDMA : public BussDevice {
+public:
+    OAMDMA(std::shared_ptr<PPU> ppu, std::shared_ptr<Cpu6502> cpu) : m_ppu(ppu), m_cpu(cpu) {}
+
+    virtual uint8_t read(const uint16_t& address) override;
+    virtual void write(const uint16_t& address, const uint8_t& data) override;
+
+private:
+    std::shared_ptr<PPU> m_ppu;
+    std::shared_ptr<Cpu6502> m_cpu;
 };
