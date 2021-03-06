@@ -95,6 +95,7 @@ private:
     VramAddress m_tvramAddress;
 
     uint8_t m_oam[64 * 4];
+    uint8_t m_oamAddress;
 
     uint16_t m_scanline;
     uint16_t m_cycle;

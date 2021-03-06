@@ -40,15 +40,16 @@ void PPU::clock() {
                 m_pixelOffset++;
             }
         }
-        else if(m_cycle == 257) {
-            updateShiftRegisters(); // Unused tile fetch
-            incVramAddrVertical();
-        }
-        else if(m_cycle == 258) {
-            transferVramAddrHorizontal();
-        }
         else if(m_cycle < 321) { // Fetch sprites for next scanline
+            if(m_cycle == 257) {
+                updateShiftRegisters(); // Unused tile fetch
+                incVramAddrVertical();
+            }
+            else if(m_cycle == 258) {
+                transferVramAddrHorizontal();
+            }
 
+            m_oamAddress = 0;
         }
         else if(m_cycle == 329 || m_cycle == 337) { // Fetch the first two tiles of the next scanline
             // We are not rendering, but we still need to shift the registers
@@ -259,6 +260,10 @@ uint8_t PPUregisters::read(const uint16_t& address) {
     case 3: // Write only
         break;
     case 4:
+        // Only read during vertical or forced blanking
+        if(m_ppu->m_ppuStatus.layout.verticalBlank || (!m_ppu->m_ppuMask.layout.showBg && !m_ppu->m_ppuMask.layout.showSpr)) {
+            data = m_ppu->m_oam[m_ppu->m_oamAddress];
+        }
         break;
     case 5: // Write only
         break;
@@ -294,8 +299,14 @@ void PPUregisters::write(const uint16_t& address, const uint8_t& data) {
     case 2: // Read only
         break;
     case 3:
+        m_ppu->m_oamAddress = data;
         break;
     case 4:
+        // Only write during vertical or forced blanking
+        if(m_ppu->m_ppuStatus.layout.verticalBlank || (!m_ppu->m_ppuMask.layout.showBg && !m_ppu->m_ppuMask.layout.showSpr)) {
+            m_ppu->m_oam[m_ppu->m_oamAddress] = data;
+            m_ppu->m_oamAddress++;
+        }
         break;
     case 5:
         if(!m_addressLatch) {
@@ -342,6 +353,6 @@ void OAMDMA::write(const uint16_t& address, const uint8_t& data) {
     uint16_t pageAddr = ((uint16_t)data) << 8;
     for(int i = 0; i < 256; ++i) {
         uint8_t oamByte = m_cpu->read(pageAddr + i);
-        m_ppu->m_oam[i] = oamByte;
+        m_ppu->m_oam[(i + m_ppu->m_oamAddress) % 256] = oamByte;
     }
 }
