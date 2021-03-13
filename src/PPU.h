@@ -21,13 +21,18 @@ private:
     void fetchAttributeData();
     void fetchPatternTableTile(uint8_t nametableByte);
     void updateShiftRegisters();
-    uint8_t fetchNextPixel();
     void incVramAddrVertical();
     void incVramAddrHorizontal();
     void transferVramAddrVertical();
     void transferVramAddrHorizontal();
-    void setPixel(uint8_t pixelValue, uint32_t pixelOffset, uint8_t tileX, uint8_t tileY, uint8_t attributeData);
+    uint8_t fetchNextBgPaletteIndex();
+    void setBgPixel(uint8_t paletteIndex, uint32_t pixelOffset, uint8_t tileX, uint8_t tileY, uint8_t attributeData);
+    uint8_t fetchNextSpritePaletteIndex(uint8_t& spriteIndex);
+    void setSpritePixel(uint8_t paletteIndex, uint32_t pixelOffset, uint8_t spriteIndex);
+    void fillSecondaryOam();
+    void fetchSpriteData();
     uint8_t getPalette(uint8_t tileX, uint8_t tileY, uint8_t attributeData);
+    uint8_t reverseBits(uint8_t byte);
     
 public:
     uint32_t windowBuffer[256*240];
@@ -95,20 +100,28 @@ private:
     VramAddress m_tvramAddress;
 
     uint8_t m_oam[64 * 4];
+    uint8_t m_sOam[8 * 4];
     uint8_t m_oamAddress;
 
     uint16_t m_scanline;
     uint16_t m_cycle;
 
     // Shift registers
-    uint16_t m_pTableDataLow;
-    uint16_t m_pTableDataHigh;
+    uint8_t m_pTableDataSprLow[8];
+    uint8_t m_pTableDataSprHigh[8];
+    uint16_t m_pTableDataBgLow;
+    uint16_t m_pTableDataBgHigh;
+
     uint8_t m_pAttrData1;
     uint8_t m_pAttrData2;
 
+    uint8_t m_spriteX[8];
+    uint8_t m_spriteAttr[8];
+
     bool m_nmi;
     bool m_oddFrame;
-    uint32_t m_pixelOffset;
+    uint8_t m_spritesFound;
+    uint8_t m_activeSprites[8];
 
     Buss* m_buss;
 

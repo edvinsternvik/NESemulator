@@ -4,7 +4,7 @@
 
 #define C Colour
 PPU::PPU()
-    : m_scanline(261), m_cycle(0), m_nmi(false), m_oddFrame(false), m_pixelOffset(0),
+    : m_scanline(261), m_cycle(0), m_nmi(false), m_oddFrame(false),
         m_palette{
             C(84,   84,  84), C(0,    30, 116), C(8,    16, 144), C(48,    0, 136), C(68,    0, 100), C(92,    0,  48), C(84,    4,   0), C(60,   24,   0), C(32,   42,   0), C(8,    58,   0), C(0,    64,   0), C(0,    60,   0), C(0,    50,  60), C(0,     0,   0),  C(0, 0, 0),  C(0, 0, 0),
             C(152, 150, 152), C(8,    76, 196), C(48,   50, 236), C(92,   30, 228), C(136,  20, 176), C(160,  20, 100), C(152,  34,  32), C(120,  60,   0), C(84,   90,   0), C(40,  114,   0), C(8,   124,   0), C(0,   118,  40), C(0,   102, 120), C(0,     0,   0),  C(0, 0, 0),  C(0, 0, 0),
@@ -34,27 +34,32 @@ void PPU::clock() {
             uint8_t tileX = m_vramAddress.layout.coarseX - 2;
             uint8_t tileY = m_vramAddress.layout.coarseY;
 
-            uint8_t pixel = fetchNextPixel();
             if(m_scanline < 240) { // Visible scanlines only, render pixels
-                setPixel(pixel, m_pixelOffset, tileX, tileY, m_pAttrData1);
-                m_pixelOffset++;
+                // Render background pixels
+                uint8_t bgPaletteIndex = fetchNextBgPaletteIndex();
+                uint32_t pixelOffset = m_scanline * 256 + (m_cycle - 1);
+                setBgPixel(bgPaletteIndex, pixelOffset, tileX, tileY, m_pAttrData1);
+
+                // Render sprite pixels
+                uint8_t sprIndex = 0;
+                uint8_t sprPaletteIndex = fetchNextSpritePaletteIndex(sprIndex);
+                bool frontPriority = (m_spriteAttr[sprIndex] & 0x20) == 0;
+                if((sprPaletteIndex != 0 && frontPriority) || bgPaletteIndex == 0) {
+                    setSpritePixel(sprPaletteIndex, pixelOffset, sprIndex);
+                }
             }
         }
-        else if(m_cycle < 321) { // Fetch sprites for next scanline
+        else if(m_cycle < 321) {
             if(m_cycle == 257) {
                 updateShiftRegisters(); // Unused tile fetch
                 incVramAddrVertical();
-            }
-            else if(m_cycle == 258) {
                 transferVramAddrHorizontal();
             }
-
-            m_oamAddress = 0;
         }
         else if(m_cycle == 329 || m_cycle == 337) { // Fetch the first two tiles of the next scanline
             // We are not rendering, but we still need to shift the registers
-            m_pTableDataHigh <<= 8;
-            m_pTableDataLow <<= 8;
+            m_pTableDataBgHigh <<= 8;
+            m_pTableDataBgLow <<= 8;
             
             updateShiftRegisters();
         }
@@ -74,6 +79,27 @@ void PPU::clock() {
         }
     }
 
+    // Sprite evaluation
+    if(m_scanline < 240) {
+        if(m_cycle < 65) { // Clear secondary OAM
+            if(m_cycle == 0) {
+                std::fill(m_sOam, m_sOam + 32, 0xFF);
+
+                m_spritesFound = 0;
+                std::fill(m_activeSprites, m_activeSprites + 8, 0);
+            }
+        }
+        else if(m_cycle < 257) {
+            fillSecondaryOam();
+        }
+        else if(m_cycle < 321) { // Sprite fetches
+            if(m_cycle % 8 == 0) { // 264, 272, 280, 288, 296, 304, 312, 320
+                fetchSpriteData();
+            }
+            m_oamAddress = 0;
+        }
+    }
+
     m_cycle++;
     
     if(m_cycle == 341) {
@@ -84,7 +110,6 @@ void PPU::clock() {
             m_scanline = 0;
             m_oddFrame = !m_oddFrame;
             frameDone = true;
-            m_pixelOffset = 0;
         }
     }
 }
@@ -145,8 +170,8 @@ void PPU::fetchPatternTableTile(uint8_t nametableByte) {
     uint8_t newLow = read(tileAddress);
     uint8_t newHigh = read(tileAddress + 8);
     
-    m_pTableDataLow  = (m_pTableDataLow  & 0xFF00) | newLow;
-    m_pTableDataHigh = (m_pTableDataHigh & 0xFF00) | newHigh;
+    m_pTableDataBgLow  = (m_pTableDataBgLow  & 0xFF00) | newLow;
+    m_pTableDataBgHigh = (m_pTableDataBgHigh & 0xFF00) | newHigh;
 }
 
 void PPU::updateShiftRegisters() {
@@ -154,18 +179,6 @@ void PPU::updateShiftRegisters() {
     fetchAttributeData();
     fetchPatternTableTile(nametableByte);
     incVramAddrHorizontal();
-}
-
-// Returns the next pixel from pattern table data shift registers, and then shifts these registers
-uint8_t PPU::fetchNextPixel() {
-    int8_t pixel = 0;
-    pixel |= (m_pTableDataLow & 0x8000) >> 15; // low
-    pixel |= (m_pTableDataHigh & 0x8000) >> 14; // high
-
-    m_pTableDataLow <<= 1;
-    m_pTableDataHigh <<= 1;
-
-    return pixel;
 }
 
 // Shift vram address down one row vertically
@@ -214,23 +227,141 @@ void PPU::transferVramAddrHorizontal() {
     }
 }
 
-// Sets the pixel in the window buffer at pixelOffset. The provided pixelValue
+// Returns the next palette index from pattern table data shift registers, and then shifts these registers
+uint8_t PPU::fetchNextBgPaletteIndex() {
+    int8_t pixel = 0;
+    pixel |= (m_pTableDataBgLow & 0x8000) >> 15; // low
+    pixel |= (m_pTableDataBgHigh & 0x8000) >> 14; // high
+
+    m_pTableDataBgLow <<= 1;
+    m_pTableDataBgHigh <<= 1;
+
+    return pixel;
+}
+
+// Sets the pixel in the window buffer at pixelOffset. The provided bgPaletteIndex
 // should be a number between 0 and 3 specifying a colour in the palette which we get from attributeData
-void PPU::setPixel(uint8_t pixelValue, uint32_t pixelOffset, uint8_t tileX, uint8_t tileY, uint8_t attributeData) {
-    if(m_ppuMask.layout.showBg || m_ppuMask.layout.showSpr) {
-        uint8_t paletteIndex;
-        if(pixelValue == 0) {
-            paletteIndex = read(0x3F00); // Bit 0 of every palette is background, located at 0x3F00
+void PPU::setBgPixel(uint8_t paletteIndex, uint32_t pixelOffset, uint8_t tileX, uint8_t tileY, uint8_t attributeData) {
+    if(m_ppuMask.layout.showBg) {
+        uint8_t colourIndex;
+        if(paletteIndex == 0) {
+            colourIndex = read(0x3F00); // Bit 0 of every palette is background, located at 0x3F00
         }
         else {
             uint8_t palette = getPalette(tileX, tileY, attributeData);
             uint16_t paletteOffset = 0x3F00 + palette * 4;
-            paletteIndex = read(paletteOffset + pixelValue);
+            colourIndex = read(paletteOffset + paletteIndex);
         }
-        Colour c = m_palette[paletteIndex];
-        unsigned int pixelVal = 0xFF000000 | (unsigned int)c.r << 16 | (unsigned int)c.g << 8 | (unsigned int)c.b;
+        Colour c = m_palette[colourIndex];
+        unsigned int pixelVal = (unsigned int)c.r << 16 | (unsigned int)c.g << 8 | (unsigned int)c.b;
         *((unsigned int*)(windowBuffer + pixelOffset)) = pixelVal;
     }
+}
+
+// Returns the next palette index from a sprite if there is one active, and also sets the index of the sprite in the spriteIndex argument variable
+uint8_t PPU::fetchNextSpritePaletteIndex(uint8_t& spriteIndex) {
+
+    uint8_t spritePaletteIndex = 0;
+    spriteIndex = 0;
+    for(uint8_t i = 0; i < 8; ++i) {
+        if(m_activeSprites[i] > 0) {
+            if(spritePaletteIndex == 0) {
+                spritePaletteIndex = ((m_pTableDataSprHigh[i] & 0x80) >> 6) | ((m_pTableDataSprLow[i] & 0x80) >> 7);
+                spriteIndex = i;
+            }
+            m_pTableDataSprLow[i]  <<= 1;
+            m_pTableDataSprHigh[i] <<= 1;
+
+            m_activeSprites[i]--;
+        }
+    }
+
+    for(int i = 0; i < 8; ++i) {
+        m_spriteX[i]--;
+        if(m_spriteX[i] == 0) {
+            m_activeSprites[i] = 8;
+        }
+    }
+
+    return spritePaletteIndex;
+}
+
+void PPU::setSpritePixel(uint8_t paletteIndex, uint32_t pixelOffset, uint8_t spriteIndex) {
+    if(m_ppuMask.layout.showSpr) {
+        uint8_t colourIndex;
+        if(paletteIndex == 0) {
+            colourIndex = read(0x3F00); // Bit 0 of every palette is background, located at 0x3F00
+        }
+        else {
+            uint8_t palette = (m_spriteAttr[spriteIndex]) & 0x3;
+            uint16_t paletteOffset = 0x3F10 + (uint16_t)palette * 4;
+            colourIndex = read(paletteOffset + paletteIndex);
+        }
+        Colour c = m_palette[colourIndex];
+        unsigned int pixelVal = (unsigned int)c.r << 16 | (unsigned int)c.g << 8 | (unsigned int)c.b;
+        *((unsigned int*)(windowBuffer + pixelOffset)) = pixelVal;
+    }
+}
+
+void PPU::fillSecondaryOam() {
+    if(m_spritesFound < 8) {
+        uint8_t nSpriteY = m_oam[m_oamAddress];
+        uint8_t sOamAddr = m_spritesFound * 4;
+        m_sOam[sOamAddr] = nSpriteY;
+
+        uint8_t spriteHeight = m_ppuCtrl.layout.spriteSize ? 16 : 8;
+        if(m_scanline >= nSpriteY && m_scanline < nSpriteY + spriteHeight) { // Sprite is in range
+            for(int i = 1; i < 4; ++i) m_sOam[sOamAddr + i] = m_oam[m_oamAddress + i];
+            m_spritesFound++;
+        }
+        m_oamAddress += 4;
+
+        // oamAddress is unsigned, so since it was just incremented by 4, the only way it can be < 4 is if it has
+        // wrapped back around. There are 64 sprites, each taking up 4 bytes, so if the oamAddress has wrapped back around, it means
+        // that all sprites have been checked*. (*Assuming oamAddress started at 0)
+        if(m_oamAddress < 4) {
+            m_spritesFound = 9; // To make sure that we don't continue evaluating more sprites after we have wrapped around.
+        }
+    }
+    else if(m_spritesFound == 8) {
+        // Set sprite overflow if another sprite found. (Simulate bug maybe?)
+    }
+}
+void PPU::fetchSpriteData() {
+    uint8_t spriteNumber = (m_cycle - 257) / 8;
+
+    uint8_t tileIndexNumber = m_sOam[spriteNumber * 4 + 1];
+    uint16_t pTableSpriteAddr = 0;
+    if(m_ppuCtrl.layout.spriteSize) { // 8x16 sprites
+        uint16_t bankAddr = (tileIndexNumber & 1) ? 0x1000 : 0x0000;
+        uint16_t localTileAddr = (uint16_t)(tileIndexNumber >> 1) * 16; // Each tile is 16 bytes
+        pTableSpriteAddr = bankAddr + localTileAddr;
+    }
+    else { // 8x8 sprites
+        uint16_t bankAddr = m_ppuCtrl.layout.spritePatternAddr ? 0x1000 : 0x0000;
+        uint16_t localTileAddr = (uint16_t)tileIndexNumber * 16; // Each tile is 16 bytes
+        pTableSpriteAddr = bankAddr + localTileAddr;
+    }
+
+    uint8_t deltaSprY = m_scanline - m_sOam[spriteNumber * 4 + 0];
+
+    if(m_sOam[spriteNumber * 4 + 2] & 0x80) { // Flip sprite vertically
+        uint8_t sprSize = m_ppuCtrl.layout.spriteSize ? 16 : 8;
+        deltaSprY = sprSize - deltaSprY;
+    }
+
+    pTableSpriteAddr += deltaSprY;
+
+    m_pTableDataSprLow[spriteNumber] = read(pTableSpriteAddr);
+    m_pTableDataSprHigh[spriteNumber] = read(pTableSpriteAddr + 8);
+
+    if(m_sOam[spriteNumber * 4 + 2] & 0x40) { // Flip sprite horizontally
+        m_pTableDataSprLow[spriteNumber] = reverseBits(m_pTableDataSprLow[spriteNumber]);
+        m_pTableDataSprHigh[spriteNumber] = reverseBits(m_pTableDataSprHigh[spriteNumber]);
+    }
+
+    m_spriteX[spriteNumber] = m_sOam[spriteNumber * 4 + 3];
+    m_spriteAttr[spriteNumber] = m_sOam[spriteNumber * 4 + 2];
 }
 
 uint8_t PPU::getPalette(uint8_t tileX, uint8_t tileY, uint8_t attributeData) {
@@ -241,6 +372,11 @@ uint8_t PPU::getPalette(uint8_t tileX, uint8_t tileY, uint8_t attributeData) {
     //      bits 6-7: Palette for bottom right quadrant of 4x4 tile area
     uint8_t shift = ((tileX / 2) % 2) * 2 + ((tileY / 2) % 2) * 4;
     return (attributeData >> shift) & 0x03;
+}
+
+uint8_t PPU::reverseBits(uint8_t byte) {
+    return  ((byte & 0x80) >> 7) | ((byte & 0x40) >> 5) | ((byte & 0x20) >> 3) | ((byte & 0x10) >> 1) |
+            ((byte & 0x08) << 1) | ((byte & 0x04) << 3) | ((byte & 0x02) << 5) | ((byte & 0x01) << 7);
 }
 
 uint8_t PPUregisters::read(const uint16_t& address) {
