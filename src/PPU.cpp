@@ -13,8 +13,6 @@ PPU::PPU()
 }
 
 void PPU::clock() {
-    if(m_scanline == 0 && m_cycle == 0 && m_oddFrame) m_cycle = 1;
-
     if(m_scanline == 261) { // Pre render scanline
         if(m_cycle == 1) {
             m_ppuStatus.layout.verticalBlank = 0;
