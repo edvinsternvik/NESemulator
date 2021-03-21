@@ -16,6 +16,7 @@ void PPU::clock() {
     if(m_scanline == 261) { // Pre render scanline
         if(m_cycle == 1) {
             m_ppuStatus.layout.verticalBlank = 0;
+            m_ppuStatus.layout.spriteZeroHit = 0;
         }
         else if(m_cycle > 279 && m_cycle < 305) {
             transferVramAddrVertical();
@@ -42,6 +43,7 @@ void PPU::clock() {
                 uint8_t sprIndex = 0;
                 uint8_t sprPaletteIndex = fetchNextSpritePaletteIndex(sprIndex);
                 bool frontPriority = (m_spriteAttr[sprIndex] & 0x20) == 0;
+                if(sprIndex == 0 && sprPaletteIndex != 0) m_ppuStatus.layout.spriteZeroHit = 1;
                 if((sprPaletteIndex != 0 && frontPriority) || bgPaletteIndex == 0) {
                     setSpritePixel(sprPaletteIndex, pixelOffset, sprIndex);
                 }
