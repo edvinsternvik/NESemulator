@@ -98,6 +98,7 @@ private:
     };
     VramAddress m_vramAddress;
     VramAddress m_tvramAddress;
+    uint8_t m_fineX;
 
     uint8_t m_oam[64 * 4];
     uint8_t m_sOam[8 * 4];

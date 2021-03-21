@@ -29,15 +29,20 @@ void PPU::clock() {
             if(m_cycle % 8 == 1 && m_cycle != 1) { // cycle 9, 17, 25 etc
                 updateShiftRegisters();
             }
-            // Rendering is two tiles behind
-            uint8_t tileX = m_vramAddress.layout.coarseX - 2;
-            uint8_t tileY = m_vramAddress.layout.coarseY;
 
             if(m_scanline < 240) { // Visible scanlines only, render pixels
                 // Render background pixels
                 uint8_t bgPaletteIndex = fetchNextBgPaletteIndex();
+
+                int tilePixel = ((m_cycle - 1) % 8) + m_fineX;
+                int tileCrossed = tilePixel >= 8 ? 1 : 0;
+                uint8_t tileX = m_vramAddress.layout.coarseX + tileCrossed - 2; //Rendering is two tiles behind
+                uint8_t tileY = m_vramAddress.layout.coarseY;
+                uint8_t attrData = tileCrossed ? m_pAttrData2 : m_pAttrData1;
+
                 uint32_t pixelOffset = m_scanline * 256 + (m_cycle - 1);
-                setBgPixel(bgPaletteIndex, pixelOffset, tileX, tileY, m_pAttrData1);
+                setBgPixel(bgPaletteIndex, pixelOffset, tileX, tileY, attrData);
+                
 
                 // Render sprite pixels
                 uint8_t sprIndex = 0;
@@ -223,15 +228,16 @@ void PPU::transferVramAddrHorizontal() {
     if(m_ppuMask.layout.showBg || m_ppuMask.layout.showSpr) {
         m_vramAddress.layout.nametableX = m_tvramAddress.layout.nametableX;
         m_vramAddress.layout.coarseX = m_tvramAddress.layout.coarseX;
-        // Todo fineX
     }
 }
 
 // Returns the next palette index from pattern table data shift registers, and then shifts these registers
 uint8_t PPU::fetchNextBgPaletteIndex() {
     int8_t pixel = 0;
-    pixel |= (m_pTableDataBgLow & 0x8000) >> 15; // low
-    pixel |= (m_pTableDataBgHigh & 0x8000) >> 14; // high
+    uint16_t bitmask = 0x8000 >> m_fineX;
+
+    pixel |= (m_pTableDataBgLow & bitmask) >> (15 - m_fineX); // low
+    pixel |= (m_pTableDataBgHigh & bitmask) >> (14 - m_fineX); // high
 
     m_pTableDataBgLow <<= 1;
     m_pTableDataBgHigh <<= 1;
@@ -448,7 +454,7 @@ void PPUregisters::write(const uint16_t& address, const uint8_t& data) {
         if(!m_addressLatch) {
             // Write horizontal scroll
             m_ppu->m_tvramAddress.layout.coarseX = data >> 3;
-            // Todo - fine x scroll
+            m_ppu->m_fineX = data & 0x07;
             m_addressLatch = true;
         }
         else {
