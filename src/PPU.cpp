@@ -133,14 +133,22 @@ bool PPU::nmi() {
 
 uint8_t PPU::read(const uint16_t& address) {
     if(m_buss) {
-        return m_buss->read(address & 0x3FFF);
+        uint16_t addr = address;
+        if(addr == 0x3F10 || addr == 0x3F14 || addr == 0x3F18 || addr == 0x3F1C) {
+            addr -= 0x10;
+        }
+        return m_buss->read(addr & 0x3FFF);
     }
     return 0;
 }
 
 void PPU::write(const uint16_t& address, const uint8_t& data) {
     if(m_buss) {
-        m_buss->write(address & 0x3FFF, data);
+        uint16_t addr = address;
+        if(addr == 0x3F10 || addr == 0x3F14 || addr == 0x3F18 || addr == 0x3F1C) {
+            addr -= 0x10;
+        }
+        m_buss->write(addr & 0x3FFF, data);
     }
 }
 
