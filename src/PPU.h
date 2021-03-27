@@ -123,6 +123,7 @@ private:
     bool m_oddFrame;
     uint8_t m_spritesFound;
     uint8_t m_activeSprites[8];
+    int m_spriteZeroIndex;
 
     Buss* m_buss;
 

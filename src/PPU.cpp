@@ -17,6 +17,7 @@ void PPU::clock() {
         if(m_cycle == 1) {
             m_ppuStatus.layout.verticalBlank = 0;
             m_ppuStatus.layout.spriteZeroHit = 0;
+            m_spriteZeroIndex = -1;
         }
         else if(m_cycle > 279 && m_cycle < 305) {
             transferVramAddrVertical();
@@ -43,12 +44,11 @@ void PPU::clock() {
                 uint32_t pixelOffset = m_scanline * 256 + (m_cycle - 1);
                 setBgPixel(bgPaletteIndex, pixelOffset, tileX, tileY, attrData);
                 
-
                 // Render sprite pixels
                 uint8_t sprIndex = 0;
                 uint8_t sprPaletteIndex = fetchNextSpritePaletteIndex(sprIndex);
                 bool frontPriority = (m_spriteAttr[sprIndex] & 0x20) == 0;
-                if(sprIndex == 0 && sprPaletteIndex != 0) m_ppuStatus.layout.spriteZeroHit = 1;
+                if(sprIndex == m_spriteZeroIndex && sprPaletteIndex != 0 && bgPaletteIndex != 0 && m_cycle != 256) m_ppuStatus.layout.spriteZeroHit = 1;
                 if((sprPaletteIndex != 0 && frontPriority) || bgPaletteIndex == 0) {
                     setSpritePixel(sprPaletteIndex, pixelOffset, sprIndex);
                 }
@@ -325,6 +325,7 @@ void PPU::fillSecondaryOam() {
 
         uint8_t spriteHeight = m_ppuCtrl.layout.spriteSize ? 16 : 8;
         if(m_scanline >= nSpriteY && m_scanline < nSpriteY + spriteHeight) { // Sprite is in range
+            if(m_oamAddress == 0) m_spriteZeroIndex = 0;
             for(int i = 1; i < 4; ++i) m_sOam[sOamAddr + i] = m_oam[m_oamAddress + i];
             m_spritesFound++;
         }
