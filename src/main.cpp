@@ -4,38 +4,52 @@
 
 #include <iostream>
 #include <cstring>
+#include <chrono>
 
 class NesApplication : public rgl::Application {
 public:
-    NesApplication(std::shared_ptr<Cartridge> cartridge) {
+    NesApplication(std::shared_ptr<Cartridge> cartridge) : FRAMERATE(60), FRAMETIME(1.0 / FRAMERATE) {
         nes.loadCartridge(cartridge);
 
         controller1 = std::make_shared<Controller>();
         nes.connectController1(controller1);
 
         nes.reset();
+
+        m_deltaTime = 0;
+        m_now = std::chrono::high_resolution_clock::now();
+        m_previousFrame = m_now;
     }
 
     virtual void onUpdate() override {
-        while(true) {
-            nes.cpu->clock();
-            for(int i = 0; i < 3; ++i) {
-                nes.ppu->clock();
+        m_now = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double> dt = (m_now - m_previousFrame);
+        m_deltaTime += dt.count();
+        m_previousFrame = m_now;
+
+        if(m_deltaTime >= FRAMETIME) {
+            m_deltaTime -= FRAMETIME;
+
+            while(true) {
+                nes.cpu->clock();
+                for(int i = 0; i < 3; ++i) {
+                    nes.ppu->clock();
+                }
+
+                if(nes.ppu->nmi()) {
+                    nes.cpu->nmiPin = true;
+                }
+
+                if(nes.ppu->frameDone) {
+                    nes.ppu->frameDone = false;
+                    break;
+                }
             }
 
-            if(nes.ppu->nmi()) {
-                nes.cpu->nmiPin = true;
-            }
+            renderFrame();
 
-            if(nes.ppu->frameDone) {
-                nes.ppu->frameDone = false;
-                break;
-            }
+            setControllerInput();
         }
-
-        renderFrame();
-
-        setControllerInput();
     }
 
     virtual void onEvent(rgl::Event* event) override {
@@ -80,6 +94,13 @@ private:
 
     NES nes;
     std::shared_ptr<Controller> controller1;
+    const double FRAMERATE;
+
+private:
+    const double FRAMETIME;
+    std::chrono::time_point<std::chrono::high_resolution_clock> m_now;
+    std::chrono::time_point<std::chrono::high_resolution_clock> m_previousFrame;
+    double m_deltaTime;
 };
 
 int main(int argc, const char** argv) {
